@@ -45,5 +45,7 @@ module.exports=async(win,output)=>{
  await wait(async()=>document.querySelector('#portrait').dataset.rig==='rabbit'&&document.querySelector('#portrait').dataset.rigReady==='true'&&(await window.paperpal.snapshot()).character.species==='rabbit'&&document.querySelector('#native-name').value==='耳朵');
  await run(()=>{document.querySelector('[data-drawer=settings]').click();const n=document.querySelector('#native-name');n.value='棉花糖';n.dispatchEvent(new Event('input',{bubbles:true}));const size=document.querySelector('#native-size');size.value='70';size.dispatchEvent(new Event('input',{bubbles:true}));const p=document.querySelector('#native-personality');p.value='playful';p.dispatchEvent(new Event('input',{bubbles:true}));document.querySelector('#native-settings').requestSubmit();});
  await wait(()=>document.querySelector('#drag-tag').textContent.includes('棉花糖'));
+ await wait(()=>document.querySelector('#nest-sheet').hidden);
+ await run(()=>{document.querySelector('#nest-toggle').click();document.querySelector('[data-drawer=settings]').click();});
  await shot('native-customized');
 };

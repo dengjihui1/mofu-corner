@@ -105,6 +105,7 @@ else app.whenReady().then(async () => {
     stopWatching(); stopWatching = () => {};
     const before = followHost;
     followHost = enabled === true && canFollow;
+    if(!smoke)try{require('node:fs').writeFileSync(join(dataRoot,'preferences.json'),JSON.stringify({mode:state.mode,until:state.until,affection:state.affection,followHost}),{mode:0o600});}catch{}
     if (followHost) {
       if (!before) freePosition = win.getPosition();
       host = { status: 'searching' };
