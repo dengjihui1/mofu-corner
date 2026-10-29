@@ -12,6 +12,8 @@ jobs:
       matrix:
         os: [windows-latest, macos-15, macos-15-intel]
     runs-on: ${{ matrix.os }}
+    env:
+      PAPERPAL_TEST_SOFTWARE_GL: ${{ matrix.os == 'macos-15-intel' && '1' || '0' }}
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v7

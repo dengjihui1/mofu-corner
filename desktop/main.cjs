@@ -6,6 +6,12 @@ const root = join(__dirname, '..');
 const demo = process.argv.includes('--demo');
 const selfTest = process.argv.includes('--self-test');
 const smoke = process.argv.includes('--smoke') || selfTest;
+// Intel macOS CI has no GPU. Use the documented software GLES driver only
+// for explicit smoke/self tests; normal launches retain the system backend.
+if(smoke && process.env.PAPERPAL_TEST_SOFTWARE_GL==='1'){
+  app.commandLine.appendSwitch('use-gl','angle');
+  app.commandLine.appendSwitch('use-angle','swiftshader');
+}
 // Exercise the same GPU interpolation path in desktop verification as in normal use.
 const brand = process.env.PAPERPAL_BRAND === 'lark' ? 'lark' : 'feishu';
 const dataRoot = process.env.PAPERPAL_DATA_DIR || join(root, '.local');
