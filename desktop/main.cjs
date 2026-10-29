@@ -130,6 +130,9 @@ else app.whenReady().then(async () => {
     if (!smoke) return;
     if (selfTest) {
       try {
+        // The real page is ready before emulating this test-only media preference.
+        win.webContents.debugger.attach('1.3');
+        await win.webContents.debugger.sendCommand('Emulation.setEmulatedMedia',{features:[{name:'prefers-reduced-motion',value:'no-preference'}]});
         const scenario = require('../tests/desktop-scenario.cjs');
         const result = await win.webContents.executeJavaScript(`(${scenario.toString()})()`);
         const stored = await storage.loadCharacter(dataRoot);
@@ -142,7 +145,7 @@ else app.whenReady().then(async () => {
         if (screenshot) await fs.writeFile(screenshot, png);
         console.log(JSON.stringify({ desktopTest: 'passed', ...result, diskPersistence: true, windowHidden: !win.isVisible(), sandbox: true, tray: Boolean(tray), brand }));
         app.quit();
-      } catch (failure) { console.error('DESKTOP_TEST_FAILED', failure.message); app.exit(1); }
+      } catch (failure) { console.error('DESKTOP_TEST_FAILED', failure.message); console.error(await win.webContents.executeJavaScript('JSON.stringify({hidden:document.hidden,reducedMotion:matchMedia("(prefers-reduced-motion: reduce)").matches,portrait:document.querySelector("#portrait")?.dataset})')); app.exit(1); }
     } else { console.log(JSON.stringify({ smoke: 'passed', renderer: true, windowHidden: win.isVisible() === false, sandbox: true, tray: Boolean(tray), character: character.name, demo, brand, messageCount: state.queue.length, calendarEnabled, companionOnly: !demo && !calendarEnabled })); setTimeout(() => app.quit(), 200); }
   });
   let hitRegions=[];
