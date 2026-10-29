@@ -74,7 +74,8 @@ else app.whenReady().then(async () => {
   win.webContents.session.setPermissionRequestHandler((_, __, callback) => callback(false));
   const allowed = event => event.sender === win.webContents && event.senderFrame === win.webContents.mainFrame;
   const petArea=()=>screen.getDisplayMatching(dockState.footprint||win.getBounds()).workArea;
-  const snapshot = () => ({ state, view: presenter(state), demo, brand, error, character, companion: { followHost, host, platform:caps,docking:dockState,window:win.getBounds(),settingsOpen:modalOpen,workArea:petArea(),canFollow } });
+  let snapshotSequence=0;
+  const snapshot = () => ({ sequence:++snapshotSequence,state, view: presenter(state), demo, brand, error, character, companion: { followHost, host, platform:caps,docking:dockState,window:win.getBounds(),settingsOpen:modalOpen,workArea:petArea(),canFollow } });
   const recordStatus=()=>{const value={pid:process.pid,brand:host.brand||brand,hostStatus:host.status,hostActive:host.active===true,followHost,petSize:character.size,settingsOpen:modalOpen,docking:dockState,window:win.getBounds(),windowVisible:win.isVisible()};const key=JSON.stringify(value);if(key===statusKey)return;statusKey=key;statusWrites=statusWrites.catch(()=>{}).then(()=>fs.writeFile(join(dataRoot,'run','window-status.json'),key,{mode:0o600})).catch(()=>{});};
   const broadcast = () => { if (win && !win.isDestroyed()) win.webContents.send('paperpal:update', snapshot()); };
   const act = action => { state = reducer(state, action); broadcast(); };
