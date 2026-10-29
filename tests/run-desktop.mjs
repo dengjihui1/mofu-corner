@@ -22,7 +22,7 @@ async function run(flags, brand) {
       if (!line) return reject(new Error('No desktop verification result'));
       done(JSON.parse(line));
     });
-    setTimeout(() => { if (child.exitCode === null) { child.kill(); reject(new Error('Desktop test timeout')); } }, 40000).unref();
+    setTimeout(() => { if (child.exitCode === null) { child.kill(); reject(new Error('Desktop test timeout')); } }, env.PAPERPAL_TEST_SOFTWARE_GL==='1'?150000:40000).unref();
   });
 }
 const ui = await run(['--self-test', '--demo'], 'lark');

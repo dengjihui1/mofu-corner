@@ -6,11 +6,14 @@ const root = join(__dirname, '..');
 const demo = process.argv.includes('--demo');
 const selfTest = process.argv.includes('--self-test');
 const smoke = process.argv.includes('--smoke') || selfTest;
+const softwareTest=smoke && process.env.PAPERPAL_TEST_SOFTWARE_GL==='1';
 // Intel macOS CI has no GPU. Use the documented software GLES driver only
 // for explicit smoke/self tests; normal launches retain the system backend.
-if(smoke && process.env.PAPERPAL_TEST_SOFTWARE_GL==='1'){
+if(softwareTest){
   app.commandLine.appendSwitch('use-gl','angle');
-  app.commandLine.appendSwitch('use-angle','swiftshader');
+  app.commandLine.appendSwitch('use-angle','swiftshader-webgl');
+  // Trusted local test pages only, in an isolated temporary profile on the CI VM.
+  app.commandLine.appendSwitch('enable-unsafe-swiftshader');
 }
 // Exercise the same GPU interpolation path in desktop verification as in normal use.
 const brand = process.env.PAPERPAL_BRAND === 'lark' ? 'lark' : 'feishu';
@@ -141,7 +144,7 @@ else app.whenReady().then(async () => {
         win.webContents.debugger.attach('1.3');
         await win.webContents.debugger.sendCommand('Emulation.setEmulatedMedia',{features:[{name:'prefers-reduced-motion',value:'no-preference'}]});
         const scenario = require('../tests/desktop-scenario.cjs');
-        const result = await win.webContents.executeJavaScript(`(${scenario.toString()})()`);
+        const result = await win.webContents.executeJavaScript(`(${scenario.toString()})({timeout:${softwareTest?20000:8000}})`);
         const stored = await storage.loadCharacter(dataRoot);
         if (stored.error || stored.character.name !== result.savedName || stored.character.size !== 1.3) throw new Error('DISK_PERSISTENCE_FAILED');
         await win.webContents.executeJavaScript('new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)))');
@@ -224,7 +227,7 @@ else app.whenReady().then(async () => {
   await poll();
   setInterval(poll, 120000).unref();
   setInterval(() => { state = reducer(state, { type: 'tick' }); broadcast(); }, 1000).unref();
-  if (smoke) setTimeout(() => { console.error('SMOKE_TIMEOUT'); app.exit(1); }, selfTest ? 30000 : 15000).unref();
+  if (smoke) setTimeout(() => { console.error('SMOKE_TIMEOUT'); app.exit(1); }, softwareTest ? (selfTest?120000:30000) : selfTest ? 30000 : 15000).unref();
 });
 app.on('second-instance', (_event, args, _directory, additionalData) => {
   const request = { id: validLaunchId(additionalData?.paperpalLaunchId) ? additionalData.paperpalLaunchId : launchIdFrom(args), configure: additionalData?.configure === true || args.includes('--configure') };

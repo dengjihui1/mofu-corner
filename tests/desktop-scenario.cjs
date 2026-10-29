@@ -1,6 +1,6 @@
-module.exports=async function desktopScenario(){
+module.exports=async function desktopScenario({timeout=8000}={}){
  const checks=[],get=s=>{const e=document.querySelector(s);if(!e)throw Error('MISSING:'+s+':'+document.querySelector('#portrait')?.dataset.rig+':'+document.querySelector('#play-tray')?.innerText);return e;},assert=(ok,msg)=>{if(!ok)throw Error(msg);checks.push(msg);},pause=ms=>new Promise(r=>setTimeout(r,ms));
- const wait=async fn=>{const end=Date.now()+8000;while(!await fn()){if(Date.now()>end)throw Error('NATIVE_STATE_TIMEOUT');await pause(25);}};
+ const wait=async fn=>{const end=Date.now()+timeout;while(!await fn()){if(Date.now()>end)throw Error('NATIVE_STATE_TIMEOUT');await pause(25);}};
  const input=(s,value)=>{const el=get(s);el.value=value;el.dispatchEvent(new Event('input',{bubbles:true}));};
  const click=s=>get(s).dispatchEvent(new MouseEvent('click',{bubbles:true,detail:1}));
  assert(document.body.classList.contains('desktop-nest'),'native-nest-renderer');assert(get('#nest-sheet').hidden,'normal-start-keeps-settings-collapsed');assert(get('.pet-anchor').getBoundingClientRect().width<110,'default-pet-size-is-60-percent');assert(get('.pet-anchor').getBoundingClientRect().width<180,'compact-desktop-companion');
