@@ -1,0 +1,35 @@
+{
+  "name": "paperpal-local",
+  "version": "0.6.0",
+  "private": true,
+  "description": "纸伴 PaperPal：Windows / macOS 十二生肖桌面陪伴，终端一键启动",
+  "type": "module",
+  "main": "desktop/main.cjs",
+  "bin": {
+    "paperpal": "bin/paperpal.mjs"
+  },
+  "scripts": {
+    "start": "node setup.mjs",
+    "setup": "node setup.mjs",
+    "preview": "node bin/paperpal.mjs preview",
+    "doctor": "node bin/paperpal.mjs doctor",
+    "test": "node --test tests/*.test.mjs",
+    "test:desktop": "node tests/run-desktop.mjs",
+    "test:setup": "node tests/run-setup.mjs",
+    "test:preview": "node tests/run-preview.mjs",
+    "test:zodiac": "node tests/run-zodiac.mjs",
+    "check": "node scripts/check.mjs",
+    "test:motion": "node tests/run-motion.mjs",
+    "test:rabbit": "node tests/run-rabbit.mjs",
+    "package:source": "node scripts/package-source.mjs",
+    "test:platform": "node --test tests/platform.test.mjs"
+  },
+  "engines": {
+    "node": ">=22.12"
+  },
+  "dependencies": {
+    "@larksuite/cli": "1.0.98",
+    "electron": "43.8.4",
+    "three": "0.186.1"
+  }
+}

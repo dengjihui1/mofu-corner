@@ -1,0 +1,23 @@
+纸伴 PaperPal 0.6.0
+
+1. 安装包含 npm 的 Node.js 22.12 或更新版本：https://nodejs.org/
+2. 在解压后的 paperpal 目录打开终端，运行：node setup.mjs
+   首次自动准备依赖和 Electron，可能需要几分钟。
+3. 小窝可选择伙伴、昵称、身量和性格，设置自动保存在 .local。
+
+Windows 也可双击 Start-PaperPal.cmd。
+macOS 可运行 bash Start-PaperPal.command。
+同一份源码适配 Windows 与 Mac；Mac 待 CI / 实机验收，窗口跟随为试用。
+
+托盘 / 菜单栏：打开小窝、桌面陪伴、窗口外侧陪伴、退出。
+重新打开小窝：node setup.mjs --configure
+Lark 标识启动：node setup.mjs --brand lark
+浏览器预览：npm run preview
+修复依赖：node setup.mjs --repair
+
+默认身量 60%。摸头、眨眼、歪头、小幅跳跃、开心表情可用，闲置活动可暂停。
+外侧没有空间时会收起，恢复窗口后再出现。
+本版无需账号或企业审批，不接收聊天、不读取聊天记录、不修改飞书状态。
+更新保留 .local；不要跨系统复制 node_modules。
+项目：https://github.com/dengjihui1/paperpal
+详细说明：README.md

@@ -1,0 +1,14 @@
+<!doctype html><html lang="zh-CN"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light">
+<title>纸伴 · 十二生肖陪伴小剧场</title><link rel="stylesheet" href="zodiac.css?v=2"><script type="module" src="zodiac.mjs?v=joint8-2"></script>
+</head><body>
+<header class="app-header"><a class="brand" href="/">纸伴 <span>PaperPal</span></a><span class="header-label">十二生肖陪伴小剧场</span><nav><button id="motion-toggle" type="button" aria-pressed="true">小动作已开启</button><a href="/">回到桌宠小屋</a></nav></header>
+<main><div class="page-intro"><div><p class="intro-kicker">有一点脾气，也有很多可爱。</p><h1>今天，和谁待一会儿？</h1></div><p>摸摸它，陪它玩，或者一起放空。<br>每一个小伙伴，都会用自己的方式回应你。</p></div>
+<div class="experience">
+<aside class="friends"><div class="friends-title"><h2>小伙伴们</h2><span>十二只，都不一样</span></div><div id="cast" class="cast" role="group" aria-label="选择生肖小伙伴"></div><p class="picker-hint">用方向键，也可以换一位朋友。</p></aside>
+<section class="theater" aria-label="角色互动舞台"><div class="theater-top"><span id="scene-title"></span><span class="state-badge" id="state-badge">自在陪伴</span></div>
+<div class="stage" id="stage"><div class="stage-orbit" aria-hidden="true"></div><div class="speech" id="speech" role="status" aria-live="polite" aria-atomic="true"></div><div class="pet-anchor"><div class="pet-aim" id="pet-aim"><button id="pet" class="pet" type="button"><span id="portrait" class="portrait"></span></button></div></div><div class="pet-shadow" aria-hidden="true"></div><div id="effects" class="effects" aria-hidden="true"></div><div class="sleep-mark" aria-hidden="true">z z</div><p class="touch-hint" id="touch-hint"></p></div>
+<div class="mobile-actions" aria-label="快速互动"><button type="button" data-quick="touch">摸摸</button><button type="button" data-quick="play">陪它玩</button><button type="button" data-quick="rest">休息</button></div><div class="play-tray" id="play-tray"></div></section>
+<aside class="companion-panel"><span class="species" id="species"></span><h2 id="name"></h2><p class="trait" id="trait"></p><p class="personality" id="personality"></p><div class="actions" aria-label="和小伙伴互动"><button id="touch-action" type="button" class="primary"></button><button id="play-action" type="button"></button><button id="rest-action" type="button"></button></div><div class="memory"><div><span class="memory-icon" aria-hidden="true"></span><b>它记得的小事</b></div><p id="memory-text"></p><span class="memory-count" id="memory-count"></span></div><button id="details-toggle" class="details-toggle" type="button" aria-expanded="false" aria-controls="design-details">看看它的模样与配色 <span aria-hidden="true">＋</span></button><div id="design-details" hidden><p id="shape"></p><div id="palette" class="palette"></div></div></aside>
+</div><footer><p>十二生肖已接入桌面端。桌面“小窝”里也能选择伙伴、玩耍、休息和保存配置。</p><a href="assets/zodiac-lineup-v1.png" download="paperpal-zodiac-lineup-v1.png">收藏全员形象</a></footer>
+</main></body></html>

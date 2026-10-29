@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>纸伴 · 小窝</title><link rel="stylesheet" href="motion-study.css?v=26"><script type="module" src="motion-study.mjs?v=23"></script></head>
+<body>
+<header class="app-bar"><a class="brand" href="motion-study.html?v=26" aria-label="纸伴首页"><span class="brand-mark" aria-hidden="true"><svg viewBox="0 0 32 32"><path d="M10 15C4 8 7 0 11 4l4 10m3 0c0-10 7-14 8-8 1 4-2 9-4 11"/><path d="M5 22c0-7 6-10 12-10s11 4 11 10-6 9-12 9S5 28 5 22Z"/><path d="M11 22h.1m11 0h.1M15 25q2 3 4 0"/></svg></span><h1>纸伴</h1></a><nav class="nav-actions" aria-label="纸伴导航"><a class="source-link" href="https://github.com/dengjihui1/paperpal" target="_blank" rel="noreferrer">GitHub</a><a class="nest-link" href="desktop.html?desktop=1"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m4 11 8-7 8 7v9H4Z"/><path d="M9 20v-6h6v6M3 11l9-8 9 8"/></svg>随身小窝</a></nav></header>
+<main>
+<section class="player" aria-label="宠物小窝">
+ <div class="live-stage">
+  <div class="alcove" aria-hidden="true"><span class="moon"></span><svg class="star star-one" viewBox="0 0 24 24"><path d="M12 2c0 7 3 10 10 10-7 0-10 3-10 10 0-7-3-10-10-10 7 0 10-3 10-10Z"/></svg><svg class="star star-two" viewBox="0 0 24 24"><path d="M12 4v16M4 12h16"/></svg><span class="window-sill"></span></div>
+  <div class="rug" aria-hidden="true"></div>
+  <button id="pet-touch" class="pet-touch" type="button" aria-label="摸摸耳朵"><span id="hero" class="hero"></span></button>
+ </div>
+ <div class="play-controls">
+  <div class="character-heading"><div class="character-name"><span id="hero-zodiac" class="zodiac-seal" aria-hidden="true">兔</span><h2 id="hero-name">耳朵</h2></div><label class="species-switch"><span class="sr-only">选择生肖伙伴</span><span aria-hidden="true">换伙伴</span><svg viewBox="0 0 20 20" aria-hidden="true"><path d="m6 8 4 4 4-4"/></svg><select id="species-select" aria-label="选择生肖伙伴"></select></label></div>
+  <div class="action-buttons simple-actions">
+   <button class="action action--touch" data-action="touch"><span class="action-icon" data-icon="hand" aria-hidden="true"></span><span>摸摸头</span></button>
+   <button class="action" data-action="blink"><span class="action-icon" data-icon="eye" aria-hidden="true"></span><span>眨眨眼</span></button>
+   <button class="action" data-action="tilt"><span class="action-icon" data-icon="tilt" aria-hidden="true"></span><span>歪歪头</span></button>
+   <button class="action" data-action="jump"><span class="action-icon" data-icon="jump" aria-hidden="true"></span><span>轻轻跳</span></button>
+   <button class="action" data-action="happy"><span class="action-icon" data-icon="spark" aria-hidden="true"></span><span>笑一个</span></button>
+  </div>
+  <button class="ambient-toggle" id="ambient-toggle" type="button" aria-pressed="true"><span class="ambient-dot" aria-hidden="true"></span><span>自己玩一会 · 开</span></button>
+  <div class="playback"><label class="speed-control"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 16a8 8 0 1 1 16 0M12 13l4-4"/><circle cx="12" cy="14" r="2"/></svg><span class="sr-only">播放速度</span><select id="speed" aria-label="播放速度"><option value="1">正常速度</option><option value="0.6">慢放 0.6×</option></select></label><button id="replay" class="replay" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 10a8 8 0 1 1 0 5M4 4v6h6"/></svg>再看一次</button></div>
+ </div>
+</section>
+<section class="companions" aria-labelledby="companions-title"><div class="section-head"><h2 id="companions-title">换个小伙伴</h2><div class="shelf-navigation"><button id="cast-prev" type="button" aria-label="上一组生肖"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m14 6-6 6 6 6"/></svg></button><button id="cast-next" type="button" aria-label="下一组生肖"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m10 6 6 6-6 6"/></svg></button></div></div><div class="cast" id="cast" role="group" aria-label="十二生肖伙伴"></div></section>
+</main></body></html>
