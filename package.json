@@ -1,11 +1,12 @@
 {
-  "name": "paperpal-local",
-  "version": "0.6.0",
+  "name": "mofu-corner",
+  "version": "0.6.1",
   "private": true,
-  "description": "纸伴 PaperPal：Windows / macOS 十二生肖桌面陪伴，终端一键启动",
+  "description": "绒角 MofuCorner：住在桌面角落的十二生肖毛绒伙伴",
   "type": "module",
   "main": "desktop/main.cjs",
   "bin": {
+    "mofucorner": "bin/paperpal.mjs",
     "paperpal": "bin/paperpal.mjs"
   },
   "scripts": {
@@ -22,7 +23,8 @@
     "test:motion": "node tests/run-motion.mjs",
     "test:rabbit": "node tests/run-rabbit.mjs",
     "package:source": "node scripts/package-source.mjs",
-    "test:platform": "node --test tests/platform.test.mjs"
+    "test:platform": "node --test tests/platform.test.mjs",
+    "docs:screenshots": "node scripts/capture-docs.mjs"
   },
   "engines": {
     "node": ">=22.12"

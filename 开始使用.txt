@@ -1,23 +1,31 @@
-纸伴 PaperPal 0.6.0
+绒角 MofuCorner 0.6.1
+给桌面一角，添一点毛茸茸。
 
-1. 安装包含 npm 的 Node.js 22.12 或更新版本：https://nodejs.org/
-2. 在解压后的 paperpal 目录打开终端，运行：node setup.mjs
-   首次自动准备依赖和 Electron，可能需要几分钟。
-3. 小窝可选择伙伴、昵称、身量和性格，设置自动保存在 .local。
+要求：Node.js 22.12+（含 npm）、Windows / macOS 图形桌面、WebGL2。
+下载 Node：https://nodejs.org/
 
-Windows 也可双击 Start-PaperPal.cmd。
-macOS 可运行 bash Start-PaperPal.command。
-同一份源码适配 Windows 与 Mac；三平台 CI 已通过，真实客户端跟随仍为试用。动态形变需要 WebGL2。
+在包含 setup.mjs 的目录打开终端，运行：node setup.mjs
+首次会自动准备依赖和 Electron，然后打开小窝；后续保留已保存设置。
+Windows 也可双击 Start-MofuCorner.cmd。
+Mac 可运行 bash Start-MofuCorner.command。
+旧 Start-PaperPal 入口仍兼容。
 
-托盘 / 菜单栏：打开小窝、桌面陪伴、窗口外侧陪伴、退出。
-重新打开小窝：node setup.mjs --configure
+托盘 / 菜单栏：打开设置、桌面陪伴、窗口外侧陪伴、退出。
+小窝可选择十二生肖和经典小獭；设置昵称、55%–130% 身量和三种性格。
+配置好后点“收好这份设置”。默认身量 60%。
+
+重新打开设置：node setup.mjs --configure
 Lark 标识启动：node setup.mjs --brand lark
-浏览器预览：npm run preview
+只准备环境：node setup.mjs --no-start
 修复依赖：node setup.mjs --repair
+浏览器预览：npm run preview
+本机检查：npm run doctor
 
-默认身量 60%。摸头、眨眼、歪头、小幅跳跃、开心表情可用，闲置活动可暂停。
-外侧没有空间时会收起，恢复窗口后再出现。
-本版无需账号或企业审批，不接收聊天、不读取聊天记录、不修改飞书状态。
-更新保留 .local；不要跨系统复制 node_modules。
-项目：https://github.com/dengjihui1/paperpal
-详细说明：README.md
+默认无需账号或企业审批，不读取聊天、不接收真实消息、不修改飞书状态。
+窗口跟随只读进程与窗口位置；客户端不在前台、最小化或外侧放不下时隐藏。
+Mac 真实客户端跟随仍为试用。可从托盘切回桌面陪伴。
+浏览器预览不具备原生桌面能力，设置与桌面版分别保存。
+
+本地设置：.local/。更新时保留此目录，不跨系统复制 node_modules。
+卸载：从托盘退出后，备份所需配置，再删除项目目录。
+完整图文说明：https://github.com/dengjihui1/mofu-corner

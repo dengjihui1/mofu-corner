@@ -33,7 +33,7 @@ if (command === 'start') {
       const name = decodeURIComponent(url.pathname === '/' ? '/motion-study.html' : url.pathname);
       let base = ui;
       let file;
-      const sourceModule = ['/src/state.mjs', '/src/character.mjs'].includes(name);
+      const sourceModule = ['/src/state.mjs', '/src/character.mjs', '/src/snapshot-order.mjs'].includes(name);
       if (sourceModule) file = join(root, name.slice(1));
       else file = resolve(ui, `.${name}`);
       if (!sourceModule && (relative(base, file).startsWith('..') || relative(base, file).includes(':'))) throw new Error('invalid path');
@@ -42,7 +42,7 @@ if (command === 'start') {
       res.end(content);
     } catch { res.writeHead(404); res.end('Not found'); }
   });
-  server.listen(4717, '127.0.0.1', () => console.log('PaperPal 本地陪伴：http://127.0.0.1:4717（无需账号登录；仅本机可访问）'));
+  server.listen(4717, '127.0.0.1', () => console.log('MofuCorner 本地陪伴：http://127.0.0.1:4717（无需账号登录；仅本机可访问）'));
   server.on('error', () => { console.error('预览端口 4717 已占用或不可用'); process.exitCode = 1; });
 } else if (command === 'character') {
   const { createCharacter } = await import('../src/character.mjs');
@@ -76,5 +76,5 @@ if (command === 'start') {
     }
   }
 } else {
-  console.log(`纸伴 PaperPal 0.6 · Windows / macOS 桌面陪伴\n\nnode setup.mjs                       一键准备并启动\nnode setup.mjs --configure           打开小窝设置\nnode setup.mjs --brand lark          Lark 标识启动\nnode bin/paperpal.mjs preview        浏览器预览\nnode bin/paperpal.mjs doctor         本机能力与平台状态\n\n十二生肖和经典小獭均可在小窝选择。默认身量 60%。\nWindows 外侧跟随已实测；Mac 跟随为试用适配，等待 Mac 验收。\n本版不接收聊天消息、不修改飞书状态。源码尚未发布 npm 公共包。`);
+  console.log(`绒角 MofuCorner 0.6.1 · Windows / macOS 桌面陪伴\n\nnode setup.mjs                       一键准备并启动\nnode setup.mjs --configure           打开小窝设置\nnode setup.mjs --brand lark          Lark 标识启动\nnode bin/paperpal.mjs preview        浏览器预览\nnode bin/paperpal.mjs doctor         本机能力与平台状态\n\n十二生肖和经典小獭均可在小窝选择。默认身量 60%。\nWindows 外侧跟随已实测；Mac 跟随为试用适配，等待 Mac 验收。\n本版不接收聊天消息、不修改飞书状态。源码尚未发布 npm 公共包。`);
 }

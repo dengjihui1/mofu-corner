@@ -1,0 +1,20 @@
+import {spawn} from 'node:child_process';
+import {mkdtemp,mkdir,writeFile} from 'node:fs/promises';
+import {tmpdir} from 'node:os';
+import {join,dirname} from 'node:path';
+import {fileURLToPath} from 'node:url';
+import {createRequire} from 'node:module';
+const root=dirname(dirname(fileURLToPath(import.meta.url))),output=join(root,'design/current');
+const profile=await mkdtemp(join(tmpdir(),'mofucorner-docs-'));
+await mkdir(output,{recursive:true});
+await writeFile(join(profile,'character.json'),JSON.stringify({schema:'paperpal.character.v2',species:'rabbit',name:'耳朵',bag:'#f2d9de',stamp:'#bc8095',size:.6,scarf:false,personality:'gentle'}));
+const env={...process.env,PAPERPAL_DATA_DIR:profile,MOFUCORNER_CAPTURE_DIR:output};delete env.ELECTRON_RUN_AS_NODE;
+const electron=createRequire(import.meta.url)('electron');
+const invoke=args=>new Promise((done,reject)=>{
+ const p=spawn(electron,args,{cwd:root,env,stdio:'inherit',windowsHide:true});
+ p.on('error',reject);p.on('exit',code=>code===0?done():reject(Error('Screenshot capture failed: '+code)));
+ const timer=setTimeout(()=>{p.kill();reject(Error('Screenshot capture timed out'));},90000);timer.unref();p.on('exit',()=>clearTimeout(timer));
+});
+await invoke([root,'--docs-capture']);
+await invoke([join(root,'scripts/capture-lounge.cjs')]);
+console.log('Documentation images saved to '+output+' using an isolated profile.');

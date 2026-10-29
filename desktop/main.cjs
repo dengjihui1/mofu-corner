@@ -4,7 +4,8 @@ const { pathToFileURL } = require('node:url');
 const fs = require('node:fs/promises');
 const root = join(__dirname, '..');
 const demo = process.argv.includes('--demo');
-const selfTest = process.argv.includes('--self-test');
+const docsCapture = process.argv.includes('--docs-capture');
+const selfTest = process.argv.includes('--self-test') || docsCapture;
 const smoke = process.argv.includes('--smoke') || selfTest;
 const softwareTest=smoke && process.env.PAPERPAL_TEST_SOFTWARE_GL==='1';
 // Intel macOS CI has no GPU. Use the documented software GLES driver only
@@ -37,7 +38,7 @@ app.setPath('userData', join(dataRoot, 'desktop-runtime'));
 
 if (!app.requestSingleInstanceLock({ paperpalLaunchId: launchIdFrom(process.argv), configure: process.argv.includes('--configure') })) app.quit();
 else app.whenReady().then(async () => {
-  app.setName('纸伴 PaperPal');
+  app.setName('绒角 MofuCorner');
   if(process.platform==='darwin')app.dock?.hide();
   const engine = await import(pathToFileURL(join(root, 'src', 'state.mjs')).href);
   const characters = await import(pathToFileURL(join(root, 'src', 'character.mjs')).href);
@@ -70,7 +71,7 @@ else app.whenReady().then(async () => {
   const area = screen.getPrimaryDisplay().workArea;
   win = new BrowserWindow({ width: 440, height: 650, x: area.x + area.width - 450, y: area.y + area.height - 660,
     transparent: true, backgroundColor: '#00000000', frame: false, resizable: false, alwaysOnTop: true, skipTaskbar: true, hasShadow: false,
-    show: false, title: '纸伴 PaperPal', webPreferences: { preload: join(__dirname, 'preload.cjs'), contextIsolation: true, nodeIntegration: false, sandbox: true, backgroundThrottling: !smoke, offscreen: selfTest },
+    show: false, title: '绒角 MofuCorner', webPreferences: { preload: join(__dirname, 'preload.cjs'), contextIsolation: true, nodeIntegration: false, sandbox: true, backgroundThrottling: !smoke, offscreen: selfTest },
   });
   win.webContents.setWindowOpenHandler(() => ({ action: 'deny' }));
   win.webContents.on('will-navigate', (event, url) => { if (url !== win.webContents.getURL()) event.preventDefault(); });
@@ -96,7 +97,7 @@ else app.whenReady().then(async () => {
       if(position.visible){moveFrame(position.x,position.y);if(!smoke&&!win.isVisible())win.showInactive();}
       else win.hide();
     } else { dockState={placement:'tray',visible:false,reason:value.status==='minimized'?'client-minimized':value.status==='ready'?'client-inactive':'client-not-found'};win.hide(); }
-    tray?.setToolTip(dockState.reason==='no-exterior-space'?'纸伴 · 窗口外空间不足，已收进托盘':'纸伴 PaperPal · 窗口外侧陪伴');
+    tray?.setToolTip(dockState.reason==='no-exterior-space'?'绒角 · 窗口外空间不足，已收进托盘':'绒角 MofuCorner · 窗口外侧陪伴');
     broadcast();
     recordStatus();
   };
@@ -143,6 +144,10 @@ else app.whenReady().then(async () => {
         // The real page is ready before emulating this test-only media preference.
         win.webContents.debugger.attach('1.3');
         await win.webContents.debugger.sendCommand('Emulation.setEmulatedMedia',{features:[{name:'prefers-reduced-motion',value:'no-preference'}]});
+        if(docsCapture){
+          await require('../scripts/capture-native.cjs')(win,process.env.MOFUCORNER_CAPTURE_DIR);
+          console.log(JSON.stringify({documentationScreenshots:'passed'}));app.quit();return;
+        }
         const scenario = require('../tests/desktop-scenario.cjs');
         const result = await win.webContents.executeJavaScript(`(${scenario.toString()})({timeout:${softwareTest?20000:8000}})`);
         const stored = await storage.loadCharacter(dataRoot);
@@ -195,7 +200,7 @@ else app.whenReady().then(async () => {
     { type: 'separator' },
     { label: '专注 25 分钟', click: () => act({ type: 'mode', mode: 'focus', minutes: 25 }) },
     { label: '恢复陪伴', click: () => act({ type: 'mode', mode: 'available' }) },
-    { label: '退出纸伴', click: () => app.quit() },
+    { label: '退出绒角', click: () => app.quit() },
   ]).popup({ window: win }));
   {
     const bitmap = Buffer.alloc(16 * 16 * 4);
@@ -206,9 +211,9 @@ else app.whenReady().then(async () => {
     }
     const trayImage=nativeImage.createFromBitmap(bitmap,{width:16,height:16});if(process.platform==='darwin')trayImage.setTemplateImage(true);tray=new Tray(trayImage);
     const openSettings=()=>{modalOpen=true;fitSettings();win.show();win.webContents.send('paperpal:configure');};
-    tray.setToolTip('纸伴 PaperPal'); tray.setContextMenu(Menu.buildFromTemplate([{label:'打开小窝 / 设置',click:openSettings},{ label: '显示宠物 · 桌面陪伴', click: () => { modalOpen=false;setFollowing(false);win.webContents.send('paperpal:collapse');win.showInactive(); } }, { label: caps.windowFollowing==='experimental'?'窗口外侧陪伴（Mac 试用）':'贴在飞书 / Lark 窗口外侧', enabled:canFollow, click: () => {modalOpen=false;setFollowing(true);win.webContents.send('paperpal:collapse');} }, { label: '退出', click: () => app.quit() }]));
+    tray.setToolTip('绒角 MofuCorner'); tray.setContextMenu(Menu.buildFromTemplate([{label:'打开小窝 / 设置',click:openSettings},{ label: '显示宠物 · 桌面陪伴', click: () => { modalOpen=false;setFollowing(false);win.webContents.send('paperpal:collapse');win.showInactive(); } }, { label: caps.windowFollowing==='experimental'?'窗口外侧陪伴（Mac 试用）':'贴在飞书 / Lark 窗口外侧', enabled:canFollow, click: () => {modalOpen=false;setFollowing(true);win.webContents.send('paperpal:collapse');} }, { label: '退出', click: () => app.quit() }]));
     tray.on('double-click',openSettings);
-    if(process.platform==='darwin')Menu.setApplicationMenu(Menu.buildFromTemplate([{label:'纸伴 PaperPal',submenu:[{role:'about'},{label:'小窝设置',accelerator:'Command+,',click:openSettings},{type:'separator'},{role:'quit'}]}]));
+    if(process.platform==='darwin')Menu.setApplicationMenu(Menu.buildFromTemplate([{label:'绒角 MofuCorner',submenu:[{role:'about'},{label:'小窝设置',accelerator:'Command+,',click:openSettings},{type:'separator'},{role:'quit'}]}]));
   }
   await win.loadFile(join(root, 'ui', 'desktop.html'), { query: { desktop: '1', demo: demo ? '1' : '0', configure: process.argv.includes('--configure') ? '1' : '0' } });
   if (followHost) setFollowing(true);

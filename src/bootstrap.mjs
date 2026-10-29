@@ -89,7 +89,7 @@ export async function setupLock(dataRoot) {
       let running = Number.isInteger(oldPid) && oldPid > 0;
       if (running) { try { process.kill(oldPid, 0); } catch (failure) { if (failure.code === 'ESRCH') running = false; } }
       else if (Date.now() - (await stat(path)).mtimeMs < 60000) running = true;
-      if (running || attempt) throw new Error('另一个启动入口正在准备纸伴，请等它完成。');
+      if (running || attempt) throw new Error('另一个启动入口正在准备绒角，请等它完成。');
       await unlink(path);
     }
   }

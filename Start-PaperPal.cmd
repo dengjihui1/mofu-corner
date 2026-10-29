@@ -2,7 +2,7 @@
 setlocal
 where node >nul 2>nul
 if errorlevel 1 (
-  echo PaperPal requires Node.js 22.12 or newer.
+  echo MofuCorner requires Node.js 22.12 or newer.
   echo Download Node.js from https://nodejs.org and try again.
   pause
   exit /b 1

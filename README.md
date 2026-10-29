@@ -1,61 +1,249 @@
-# 纸伴 PaperPal
+<div align="center">
 
-[![Windows / macOS CI](https://github.com/dengjihui1/paperpal/actions/workflows/ci.yml/badge.svg)](https://github.com/dengjihui1/paperpal/actions/workflows/ci.yml)
+# 绒角 MofuCorner
 
-住在桌面角落的十二生肖毛绒伙伴。点一点，摸摸头，陪你安静办公。
+**给桌面一角，添一点毛茸茸。**
 
-![纸伴小窝实际运行截图](design/current/lounge-desktop.jpg)
+十二生肖毛绒桌宠 · Windows / macOS · 本地陪伴 · 终端启动
 
-## 开始使用
+[![Windows and macOS](https://github.com/dengjihui1/mofu-corner/actions/workflows/ci.yml/badge.svg)](https://github.com/dengjihui1/mofu-corner/actions/workflows/ci.yml)
+[![MIT License](https://img.shields.io/badge/License-MIT-355846)](LICENSE)
+[![Node.js](https://img.shields.io/badge/Node.js-%E2%89%A522.12-355846)](https://nodejs.org/)
 
-准备 [Node.js 22.12 或更新版本](https://nodejs.org/)（包含 npm），动态形变与表情需要 WebGL2。Windows 与 macOS 使用同一份源码；首次运行下载依赖和 Electron，之后读取本地配置启动。
+[快速开始](#快速开始) · [看看互动](#摸摸它它会回应) · [桌面小窝](#把伙伴放到桌面上) · [飞书 / Lark](#和飞书--lark-一起使用) · [常见问题](#常见问题)
+
+<img src="design/current/lounge-overview.png" alt="绒角小窝实际运行界面：折耳兔耳朵、五种轻互动与生肖选择" width="1100">
+
+</div>
+
+绒角是一款用源码启动的桌面陪伴程序。选一位生肖伙伴，给它起个小名，放在桌面角落；忙的时候安静守候，闲下来就摸摸头、歪歪头，或者轻轻跳一下。
+
+它使用独立透明窗口，支持桌面自由摆放，也支持停在飞书 / Lark 窗口外侧。默认身量 **60%**，可以拖动、调大小、切换性格，设置保存在本机。
+
+> **当前为本地陪伴 MVP。** 无需飞书应用、账号授权或企业管理员审批；当前不接收聊天消息、不读取聊天记录、不修改飞书在线状态。Mac 真实客户端跟随仍为试用功能。
+
+<details>
+<summary>看看窄窗口预览</summary>
+
+<img src="design/current/lounge-narrow.png" alt="绒角小窝在窄窗口中的实际布局" width="360">
+
+</details>
+
+## 快速开始
+
+### 需要准备什么
+
+| 项目 | 要求 |
+| --- | --- |
+| 系统 | Windows 10 / 11；macOS 12 或更新版本，Apple Silicon / Intel |
+| Node.js | **22.12 或更新版本**，安装包须包含 npm：[官网下载](https://nodejs.org/) |
+| 图形环境 | 本机图形桌面与 WebGL2；动态形变、眼部表情依赖图形渲染 |
+| 网络 | 首次准备需能访问 npm 与 Electron 下载源；依赖安装完成后，本地陪伴无需账号网络服务 |
+| Git | 用克隆方式下载时需要；也可下载 ZIP，解压后使用 |
+| 飞书 / Lark | 独立桌面陪伴不需要安装；窗口外侧陪伴需要对应桌面客户端正在运行 |
+
+系统下限依据当前锁定的 Electron 43 运行时；CI 覆盖 Windows、macOS 15 的 Apple Silicon 与 Intel。其他系统版本、真实多屏和窗口切换仍需试用。[平台能力与验收](docs/platforms.md) · [Electron 平台说明](https://www.electronjs.org/docs/latest/breaking-changes)
+
+### 下载，然后运行
 
 ```bash
-git clone https://github.com/dengjihui1/paperpal.git
-cd paperpal
+git clone https://github.com/dengjihui1/mofu-corner.git
+cd mofu-corner
 node setup.mjs
 ```
 
-也可以选择 **Code → Download ZIP**，解压后在项目目录运行 `node setup.mjs`。Windows 可双击 `Start-PaperPal.cmd`；Mac 可运行 `bash Start-PaperPal.command`。这是终端启动的桌面程序，需要 Electron 运行时。
+`setup.mjs` 会检查环境、准备依赖与 Electron，并启动桌宠。**第一次启动会打开小窝；以后读取已保存的配置，保持小窝收起。** 下载速度取决于网络，准备过程可能需要几分钟。
 
-首次启动打开小窝，选择伙伴、昵称、身量和性格。后续启动保持小窝收起，宠物在桌面陪伴；托盘 / 菜单栏可以重新打开设置或退出。准备完成后可关闭终端。
+不使用 Git：点击仓库右上角 **Code → Download ZIP**，解压，进入包含 `setup.mjs` 的目录，在终端运行 `node setup.mjs`。
+
+| 启动方式 | Windows | macOS |
+| --- | --- | --- |
+| 通用终端入口 | `node setup.mjs` | `node setup.mjs` |
+| 随附脚本 | 双击 `Start-MofuCorner.cmd` | 在项目目录运行 `bash Start-MofuCorner.command` |
+| 再次打开设置 | `node setup.mjs --configure` | `node setup.mjs --configure` |
+
+准备完成后可以关闭终端，宠物会继续运行。退出请使用托盘 / 菜单栏中的 **退出**。
+
+### 要部署服务器吗
+
+直接在自己的 Windows 或 Mac 上运行即可。默认陪伴不需要云服务器、数据库、域名、Docker、模型 API Key 或飞书开放平台配置。Electron 是自动准备的桌面运行时，程序会在本机启动透明窗口；当前未提供商店客户端或全局 npm 安装包。
+
+## 摸摸它，它会回应
+
+<img src="design/current/interaction-keyframes.png" alt="同一只毛绒兔在原渲染器中的六个关键帧：待机、摸头、眨眼、歪头、小跳、开心" width="1100">
+
+上图是原渲染器的动作关键帧，完整动作在程序中连续播放。保留同一张毛绒原画，动作与表情幅度都较轻。
+
+| 互动 | 如何使用 | 伙伴的回应 |
+| --- | --- | --- |
+| 摸摸头 | 点击宠物；预览中也可点“摸摸头” | 小幅靠近、开心眼神与脸颊变化 |
+| 眨眨眼 | 小窝 → 玩具抽屉 → 眨眨眼 | 闭眼，再自然睁开 |
+| 歪歪头 | 点击“歪歪头” | 头部轻偏，身体与耳朵小幅跟随 |
+| 轻轻跳 | 点击“轻轻跳” | 预备、短暂腾空、落地回稳；小蛇使用开心回应 |
+| 笑一个 | 点击“笑一个” | 弯弯的眼睛与轻微身体回应 |
+| 闲置陪伴 | 保持陪伴模式 | 偶尔看看、眨眼、歪头；节奏受性格影响 |
+| 安静陪伴 | 点击角色面板中的“安静陪伴” | 保持原画安静守候，再点宠物恢复陪伴 |
+| 暂停与慢放 | 预览中可关“自己玩一会”或选 0.6×；桌面专注 / 会议模式会安静下来 | 减少打扰；尊重系统“减少动态”偏好 |
+
+复杂的连续趴下、起身和伸懒腰身体动画尚未开放；小游戏里的“舒展条”是滑动玩法，不表示已实现完整伸懒腰动画。
+
+## 十二生肖，十二位小伙伴
+
+<img src="design/current/zodiac-roster.png" alt="绒角十二生肖全员：小米、阿稳、橘宝、耳朵、云朵、青团、踏踏、绵绵、桃桃、啾啾、旺仔、噗噗" width="1100">
+
+| 生肖 | 小名 | 玩具抽屉里的玩法 |
+| --- | --- | --- |
+| 鼠 | 小米 | 找到三颗谷粒 |
+| 牛 | 阿稳 | 轻推三次靠垫 |
+| 虎 | 橘宝 | 碰碰小爪，完成三次击掌 |
+| 兔 | 耳朵 | 依次点亮三朵小云 |
+| 龙 | 云朵 | 收集三朵小云 |
+| 蛇 | 青团 | 滚动小球，先到左端、再到右端 |
+| 马 | 踏踏 | 点三次，陪它小踏步 |
+| 羊 | 绵绵 | 跟随呼吸节奏放松 |
+| 猴 | 桃桃 | 点开叶子，找到躲起来的桃桃 |
+| 鸡 | 啾啾 | 按左、右、左的顺序回应 |
+| 狗 | 旺仔 | 抛三次小球给它 |
+| 猪 | 噗噗 | 慢慢拉动舒展条到终点 |
+
+这些玩法提供进度和文字回应，共用当前可用的轻动作；不代表每只角色都已具备完整的专属骨骼动画。经典邮差小獭 **折折** 也保留在小窝底部。
+
+## 把伙伴放到桌面上
+
+启动后，从系统托盘 / Mac 菜单栏打开 **小窝 / 设置**。Windows 图标可能位于托盘的折叠区。
+
+<table>
+<tr><td align="center"><strong>选择伙伴</strong><br><img src="design/current/native-partners.png" alt="桌面原生小窝的十二生肖选择抽屉" width="380"></td><td align="center"><strong>定制昵称与相处节奏</strong><br><img src="design/current/native-customized.png" alt="昵称棉花糖、身量70%、淘气性格已保存的原生设置" width="380"></td></tr>
+<tr><td align="center"><strong>玩一会：点亮小云</strong><br><img src="design/current/native-rabbit-game.png" alt="兔子小游戏中的三朵可点击小云和轻动作按钮" width="380"></td><td align="center"><strong>换一种玩法：滚球</strong><br><img src="design/current/native-snake-game.png" alt="小蛇的滚球滑动条，支持左右端点交互" width="380"></td></tr>
+<tr><td align="center"><strong>专注 25 分钟</strong><br><img src="design/current/native-focus.png" alt="本地专注模式已开启，显示25分钟倒计时" width="380"></td><td align="center"><strong>经典小獭也在</strong><br><img src="design/current/native-classic.png" alt="原生小窝已选中经典邮差小獭折折" width="380"></td></tr>
+</table>
+
+截图取自实际 Electron 小窝窗口，使用独立演示配置，裁切到设置面板；没有拍摄聊天内容或用户桌面。
+
+**第一次使用可以这样做：**
+
+1. 在“换个伙伴”中选择生肖，立即保存。
+2. 进入“陪伴设置”，填写 1–16 字小名，选择 **55%–130%** 身量，以及温柔 / 淘气 / 安静三种相处节奏。
+3. 点击 **收好这份设置**，重启后会恢复。
+4. 收起小窝，让它待在桌面角落；拖动宠物下方的名字标签即可搬家。
+5. 需要安静时，在陪伴设置中选择专注、会议或休息。**这些是绒角本地模式，不会改变飞书账号状态。**
+
+## 和飞书 / Lark 一起使用
+
+默认先作为独立桌宠运行。想让它贴着客户端窗外陪伴时：
+
+1. 打开飞书或 Lark 桌面客户端。
+2. 从托盘 / 菜单栏选择 **贴在飞书 / Lark 窗口外侧**；也可在“陪伴设置”中切换。
+3. 保持客户端处于前台，并给右侧或下方留一点空间。
+
+| 客户端窗口状态 | 宠物的行为 |
+| --- | --- |
+| 前台、有外侧空间 | 优先停在右下角的右侧，其次下方 |
+| 最大化、外侧放不下 | 收回托盘，避免占用聊天视野 |
+| 最小化、切到其他应用、未找到客户端 | 暂时隐藏；可从托盘切回“桌面陪伴” |
+| 恢复前台，重新有空间 | 再次出现在窗口外侧 |
+| 主动打开小窝 | 设置面板移到屏幕内，方便操作 |
+
+国内飞书使用默认命令；如需 Lark 标识，可运行：
 
 ```bash
-node setup.mjs --configure       # 打开小窝设置
-node setup.mjs --brand lark      # 使用 Lark 标识启动
-npm run preview                 # 浏览器预览 http://127.0.0.1:4717
-npm run doctor                  # 检查本机能力
+node setup.mjs --brand lark
 ```
 
-## 能做什么
+此选项用于启动标识，不会登录账号。窗口观察器识别本机客户端，只读取进程、前后台、最小化和窗口几何信息。**消息提醒、自动同步飞书状态、自动发送消息均未接入。**
 
-- 十二生肖自由选择，保留经典小獭；昵称、性格、颜色和身量保存在本机。
-- 摸头、眨眼、歪头、小幅跳跃和开心表情；闲置时偶尔活动，可暂停。
-- 保留完整毛绒角色，用连续网格形变与表情层表现轻动作。复杂趴下、起身、伸懒腰尚未开放。
-- 默认身量 60%，透明区域不挡点击。可独立放在桌面，也可跟随飞书 / Lark 窗口外侧。
-- 外侧优先放在窗口右下角的右边，其次下边；窗口最大化、没有容纳空间时收回托盘，恢复后再出现。
-
-**当前是本地陪伴 MVP：不接收聊天消息，不读取聊天记录，也不自动修改飞书状态。** 无需飞书开放平台应用、企业审批或账号登录。Feishu / Lark 只用于识别客户端窗口，不代表已接入账号 API。
-
-## 平台状态
-
-| 能力 | Windows | macOS（Apple Silicon / Intel） |
+| 平台 | 自动验收 | 实际客户端能力 |
 | --- | --- | --- |
-| 源码启动、定制、互动、托盘 / 菜单栏 | 本机自动验收通过 | Apple Silicon / Intel CI 通过；待实际桌面试用 |
-| 窗口外侧跟随 | 原生窗口定位自动验收通过 | 合成窗口原生定位 CI 通过；真实客户端跟随仍为试用 |
-| 点击穿透 | 原生窗口形状 | 区域判断单测通过；真实鼠标待实机试用 |
+| Windows x64 | 单元、原生小窝、保存 / 重启、合成窗口定位检查通过 | 已提供窗口外侧跟随；真实多屏仍需试用 |
+| macOS Apple Silicon | 同一源码的 CI、元数据桥、原生交互检查通过 | 真实客户端跟随与鼠标点击穿透待实机试用 |
+| macOS Intel | 同一源码 CI 通过；虚拟机使用显式软件图形后端 | 实际 GPU 性能、客户端跟随与鼠标体验待实机试用 |
 
-仓库包含 Windows、Mac Apple Silicon、Mac Intel 的 CI。CI 通过只能证明自动检查覆盖的行为，实际飞书窗口切换、多屏和系统权限仍需实机试用。详见 [平台能力](docs/platforms.md)。
+详细范围见 [平台验收说明](docs/platforms.md)。Windows ARM、Linux 和服务器无图形环境尚未作为受支持发布目标。
 
-<img src="design/current/lounge-mobile.jpg" alt="窄窗口小窝实际截图" width="330">
+## 常用命令
 
-## 本地数据与更新
+在项目目录运行：
 
-设置保存在项目内 `.local/`，默认不上传。更新源码时保留该目录，在原目录重新运行 `node setup.mjs`；不要跨系统复制 `node_modules/`。修复依赖时运行 `node setup.mjs --repair`。
+| 命令 | 用途 |
+| --- | --- |
+| `node setup.mjs` / `npm start` | 自动准备依赖并启动桌宠 |
+| `node setup.mjs --configure` | 打开小窝设置 |
+| `node setup.mjs --brand lark` | 使用 Lark 标识启动 |
+| `node setup.mjs --repair` | 重新准备依赖，保留本地角色配置 |
+| `node setup.mjs --no-start` | 只准备环境，不启动窗口 |
+| `npm run preview` | 浏览器预览，默认打开 `http://127.0.0.1:4717` |
+| `npm run doctor` | 查看本机与平台能力 |
 
-不采集聊天、截图或遥测，不向账号发送消息。[隐私说明](PRIVACY.md) 列出了窗口观察器和实验入口的范围。任意上传图片生成宠物、AI 对话及消息提醒尚未实现；目前定制使用内置角色。
+浏览器预览适合看形象和动作。桌面透明窗口、托盘、窗口外侧跟随需要用 `node setup.mjs` 启动；浏览器预览设置和桌面配置分别保存。
 
-## 开发与检查
+## 更新、备份与卸载
+
+**更新**：先在托盘退出绒角，再进入原项目目录运行：
+
+```bash
+git pull --ff-only
+node setup.mjs
+```
+
+ZIP 用户可用新版源码覆盖程序文件，保留 `.local/`。依赖或锁文件变化时，启动器会自动重新准备。不要跨 Windows / Mac 复制 `node_modules/`。
+
+**备份**：复制项目目录内的 `.local/`。其中 `character.json` 保存生肖、昵称、身量、性格；`preferences.json` 保存模式与跟随偏好。高级用户可用兼容环境变量 `PAPERPAL_DATA_DIR` 指定其他数据目录。
+
+**从 PaperPal 更新**：项目已更名为绒角 MofuCorner。原有数据格式与目录继续兼容，旧的 `Start-PaperPal.*` 入口也保留。已有 Git 克隆可先更新远程地址：
+
+```bash
+git remote set-url origin https://github.com/dengjihui1/mofu-corner.git
+git pull --ff-only
+node setup.mjs
+```
+
+**卸载**：退出宠物，按需要备份 `.local/`，再删除项目目录。当前不会添加开机启动项、系统服务或全局 npm 命令。
+
+## 常见问题
+
+<details>
+<summary><strong>提示找不到 node / npm，怎么办？</strong></summary>
+
+安装包含 npm 的 [Node.js](https://nodejs.org/)，重新打开终端，确认 `node -v` 至少为 22.12，且 `npm -v` 能显示版本。无需另装 Python、建模软件或编译工具。
+
+</details>
+
+<details>
+<summary><strong>首次下载很慢，或 Electron 没下载成功？</strong></summary>
+
+安装过程需要访问 npm 与 Electron 下载源。确认网络或代理可用后，在同一目录运行 `node setup.mjs --repair`。先用 `npm run doctor` 查看环境；错误日志在 `.local/logs/desktop.log`。
+
+</details>
+
+<details>
+<summary><strong>启动后没看见宠物？</strong></summary>
+
+先查看托盘 / 菜单栏是否有绒角图标，选择“显示宠物 · 桌面陪伴”。跟随模式下，如果客户端最小化、不在前台或窗口外放不下，宠物会隐藏。`node setup.mjs --configure` 可以主动打开设置。
+
+</details>
+
+<details>
+<summary><strong>为什么看不到动作，或动作很少？</strong></summary>
+
+先切回陪伴模式，并检查系统“减少动态”偏好。安静性格的活动间隔更长，专注 / 会议模式会减少动态；图形渲染需要 WebGL2。若始终无法显示，提交问题时附上系统、架构、Node 版本与报错。
+
+</details>
+
+<details>
+<summary><strong>macOS 需要录屏、辅助功能或管理员权限吗？</strong></summary>
+
+独立桌面陪伴不依赖这些授权。Mac 窗口观察器不主动申请录屏、辅助功能或 System Events 权限；不同系统版本可能限制窗口元数据，遇到限制可切回桌面陪伴。Mac 的真实客户端跟随仍按试用功能提供。
+
+</details>
+
+<details>
+<summary><strong>可以通知新消息、聊天，或者生成我自己的宠物吗？</strong></summary>
+
+目前提供内置生肖 / 小獭选择与本地定制。真实消息接收、账号状态同步、AI 对话、上传图片生成角色及任意角色动作生成尚未开放。早期实验 / 演示入口不属于默认陪伴功能，也不会在普通启动时自动连接账号。
+
+</details>
+
+## 开发与截图复现
 
 ```bash
 npm ci
@@ -63,15 +251,31 @@ npm run check
 npm test
 npm run test:desktop
 npm run test:setup
+npm run docs:screenshots
 npm run package:source
 ```
 
-源码包输出到 `dist/`，包含 Win / Mac 入口，不包含依赖、本地设置或历史设计稿。[发布说明](docs/publishing.md) · [更新记录](CHANGELOG.md)。
+- `docs:screenshots` 用临时配置启动隐藏 Electron 窗口，走真实 IPC 与界面操作，生成本文的小窝截图、生肖阵容和动作关键帧；不会修改你的 `.local/`。
+- `package:source` 输出 `dist/mofu-corner-0.6.1-source.zip` 与 SHA-256，不包含依赖、本机数据或历史设计稿。
+- 三平台检查与源码包可在 [GitHub Actions](https://github.com/dengjihui1/mofu-corner/actions) 查看。CI 的合成窗口定位不等同于真实飞书客户端人工验收。
 
-`desktop/` 透明窗口与 IPC；`src/` 配置、存储、平台适配；`platform/` 系统窗口观察器；`ui/` 小窝、角色和动画；`tests/` 自动验收。
+| 目录 | 内容 |
+| --- | --- |
+| `desktop/` | 透明窗口、托盘 / 菜单栏、安全预加载与 IPC |
+| `ui/` | 小窝、内置角色、连续轻动作与表情 |
+| `src/` | 配置、存储、模式、窗口停靠与平台适配 |
+| `platform/` | Windows / macOS 窗口元数据观察器 |
+| `scripts/` · `tests/` | 文档截图、源码打包与自动验收 |
+| `design/current/` | 当前版本的真实截图和渲染器图集 |
+
+[更新记录](CHANGELOG.md) · [发布说明](docs/publishing.md) · [隐私与权限](PRIVACY.md)
+
+## English
+
+**MofuCorner** is a local desktop companion with twelve plush zodiac characters, small continuous motions, expressions and simple games. Clone the repository and run `node setup.mjs` with Node.js 22.12+ and a WebGL2-capable desktop. Windows and macOS share the same source. Feishu / Lark window-edge companionship is available, with real-client macOS behavior still experimental. Chat messages, account-status synchronization and AI conversation are not connected. No company app approval is needed for the default local companion.
 
 ## 致谢与许可
 
-受 [feishu-pet](https://github.com/HeiGeAi/feishu-pet) 的办公宠物方向启发，本项目代码与角色独立制作。毛绒图像由生成式工具辅助创作；界面优化使用 [taste-skill](https://github.com/Leonxlnx/taste-skill)。本次界面保留原画和既有动作，统一配色、文字与控件层级。
+受 [feishu-pet](https://github.com/HeiGeAi/feishu-pet) 的办公宠物方向启发。项目代码与角色独立制作，毛绒图像由生成式工具辅助创作；界面优化使用 [taste-skill](https://github.com/Leonxlnx/taste-skill)。
 
-代码使用 [MIT](LICENSE)。随仓库提供的 Three.js 遵循其 [MIT 许可](ui/vendor/THREE-LICENSE.txt)。本项目与飞书、Lark 及 Codex 官方无隶属关系。
+项目使用 [MIT 许可证](LICENSE)，Three.js 遵循其 [MIT 许可](ui/vendor/THREE-LICENSE.txt)。绒角与飞书、Lark 及 Codex 官方无隶属关系。

@@ -13,7 +13,7 @@ try {
     if (['--brand', '--pet'].includes(args[i])) { if (!args[i + 1] || args[i + 1].startsWith('--')) throw new Error(`缺少 ${args[i]} 的值`); i++; }
   }
   if (args.includes('--brand') && !['feishu', 'lark'].includes(args[args.indexOf('--brand') + 1])) throw new Error('brand 必须是 feishu 或 lark');
-  console.log('纸伴 PaperPal · 一键准备与启动');
+  console.log('绒角 MofuCorner · 一键准备与启动');
   const release = await setupLock(dataRoot);
   let runtime, configuration;
   try {
@@ -27,6 +27,6 @@ try {
     const forwarded = args.filter(arg => !['--configure', '--no-start', '--repair', '--smoke'].includes(arg));
     const result = await launchDesktop(root, runtime.executable, dataRoot, { configure: args.includes('--configure') || configuration.needsConfiguration, smoke: args.includes('--smoke'), args: forwarded });
     if (args.includes('--smoke')) console.log(JSON.stringify({ bootstrapSmoke: true, firstRun: configuration.firstRun, settingsOpen: result.settingsOpen, ready: result.ready }));
-    console.log(args.includes('--smoke') ? '隐藏窗口启动自检通过。' : result.reused ? '纸伴已经运行；可在托盘切换桌面陪伴与窗口外侧陪伴。' : '纸伴已启动。托盘右键可切换桌面陪伴与窗口外侧陪伴；窗口外空间不足时会收起。小窝可换生肖与定制。');
+    console.log(args.includes('--smoke') ? '隐藏窗口启动自检通过。' : result.reused ? '绒角已经运行；可在托盘切换桌面陪伴与窗口外侧陪伴。' : '绒角已启动。托盘右键可切换桌面陪伴与窗口外侧陪伴；窗口外空间不足时会收起。小窝可换生肖与定制。');
   }
 } catch (error) { console.error(`\n未完成：${error.message}`); process.exitCode = 1; }

@@ -56,7 +56,7 @@ function applyCharacter(value = DEFAULT_CHARACTER) {
   document.querySelector('.mail-card h3').firstChild.textContent = `${character.name}的邮包 `;
   document.querySelector('.desktop-controls>b').textContent = `${character.name}的陪伴模式`;
   const label = document.querySelector('.drag-label'); if (label) label.textContent = `${character.name} · 拖动`;
-  document.title = `纸伴 PaperPal · ${character.name}的陪伴小屋`;
+  document.title = `绒角 MofuCorner · ${character.name}的陪伴小屋`;
 }
 const $ = id => document.getElementById(id);
 const escape = str => String(str).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));

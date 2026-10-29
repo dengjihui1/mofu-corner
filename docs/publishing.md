@@ -12,7 +12,7 @@ npm run test:setup
 npm run package:source
 ```
 
-源码 ZIP 与 SHA-256 位于 `dist/`。它们包含启动入口、Windows/Mac 适配、界面与素材、测试、CI、README 和平台说明，排除 `node_modules`、`.local`、日志、密钥与本机验收数据。ZIP 中 Mac `.command` 入口带可执行位，仍可用 `bash Start-PaperPal.command` 启动。
+源码 ZIP 与 SHA-256 位于 `dist/`。它们包含启动入口、Windows/Mac 适配、界面与素材、测试、CI、README 和平台说明，排除 `node_modules`、`.local`、日志、密钥与本机验收数据。ZIP 中 Mac `.command` 入口带可执行位，仍可用 `bash Start-MofuCorner.command` 启动。
 
 推送后检查 Actions 中三个平台的结果。CI 成功后会上传通用源码包，不自动发布 npm 包、商店客户端或修改 Release。创建正式 Release 时，使用与 `package.json`、lockfile 和 CHANGELOG 相同的版本号。
 
