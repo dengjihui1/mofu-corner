@@ -7,7 +7,7 @@
 
 Windows 也可双击 Start-PaperPal.cmd。
 macOS 可运行 bash Start-PaperPal.command。
-同一份源码适配 Windows 与 Mac；Mac 待 CI / 实机验收，窗口跟随为试用。
+同一份源码适配 Windows 与 Mac；三平台 CI 已通过，真实客户端跟随仍为试用。动态形变需要 WebGL2。
 
 托盘 / 菜单栏：打开小窝、桌面陪伴、窗口外侧陪伴、退出。
 重新打开小窝：node setup.mjs --configure

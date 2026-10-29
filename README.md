@@ -1,12 +1,14 @@
 # 纸伴 PaperPal
 
+[![Windows / macOS CI](https://github.com/dengjihui1/paperpal/actions/workflows/ci.yml/badge.svg)](https://github.com/dengjihui1/paperpal/actions/workflows/ci.yml)
+
 住在桌面角落的十二生肖毛绒伙伴。点一点，摸摸头，陪你安静办公。
 
 ![纸伴小窝实际运行截图](design/current/lounge-desktop.jpg)
 
 ## 开始使用
 
-准备 [Node.js 22.12 或更新版本](https://nodejs.org/)（包含 npm）。Windows 与 macOS 使用同一份源码；首次运行下载依赖和 Electron，之后读取本地配置启动。
+准备 [Node.js 22.12 或更新版本](https://nodejs.org/)（包含 npm），动态形变与表情需要 WebGL2。Windows 与 macOS 使用同一份源码；首次运行下载依赖和 Electron，之后读取本地配置启动。
 
 ```bash
 git clone https://github.com/dengjihui1/paperpal.git
@@ -39,9 +41,9 @@ npm run doctor                  # 检查本机能力
 
 | 能力 | Windows | macOS（Apple Silicon / Intel） |
 | --- | --- | --- |
-| 源码启动、定制、互动、托盘 / 菜单栏 | 本机自动验收通过 | 已适配，等待 Mac CI / 实机验收 |
-| 窗口外侧跟随 | 原生窗口定位自动验收通过 | 试用适配，等待 Mac 验收 |
-| 点击穿透 | 原生窗口形状 | 指针区域适配，等待 Mac 验收 |
+| 源码启动、定制、互动、托盘 / 菜单栏 | 本机自动验收通过 | Apple Silicon / Intel CI 通过；待实际桌面试用 |
+| 窗口外侧跟随 | 原生窗口定位自动验收通过 | 合成窗口原生定位 CI 通过；真实客户端跟随仍为试用 |
+| 点击穿透 | 原生窗口形状 | 区域判断单测通过；真实鼠标待实机试用 |
 
 仓库包含 Windows、Mac Apple Silicon、Mac Intel 的 CI。CI 通过只能证明自动检查覆盖的行为，实际飞书窗口切换、多屏和系统权限仍需实机试用。详见 [平台能力](docs/platforms.md)。
 

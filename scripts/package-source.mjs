@@ -21,4 +21,4 @@ for(const file of [...new Set(files)].sort()){
 const directory=Buffer.concat(entries),end=Buffer.alloc(22);end.writeUInt32LE(0x06054b50);end.writeUInt16LE(entries.length/2,8);end.writeUInt16LE(entries.length/2,10);end.writeUInt32LE(directory.length,12);end.writeUInt32LE(offset,16);
 const zip=Buffer.concat([...parts,directory,end]);await mkdir(dirname(out),{recursive:true});await writeFile(out,zip);
 const sha256=createHash('sha256').update(zip).digest('hex');await writeFile(out+'.sha256',`${sha256}  ${out.split(/[\\/]/).at(-1)}\n`);
-console.log(JSON.stringify({version:pkg.version,archive:out,files:entries.length/2,bytes:zip.length,sha256,platforms:['Windows','macOS Apple Silicon','macOS Intel'],macValidation:'pending CI / real device'}));
+console.log(JSON.stringify({version:pkg.version,archive:out,files:entries.length/2,bytes:zip.length,sha256,platforms:['Windows','macOS Apple Silicon','macOS Intel'],macValidation:'See docs/platforms.md for CI and real-device coverage'}));
