@@ -108,6 +108,22 @@ node setup.mjs
 
 这些玩法提供进度和文字回应，共用当前可用的轻动作；不代表每只角色都已具备完整的专属骨骼动画。经典邮差小獭 **折折** 也保留在小窝底部。
 
+<details>
+<summary><strong>展开查看全部十二生肖小游戏截图</strong></summary>
+
+<table>
+<tr><td align="center"><strong>小米 · 找谷粒</strong><br><img src="design/current/game-rat.png" alt="小米 · 找谷粒的实际原生小游戏界面" width="360"></td><td align="center"><strong>阿稳 · 推靠垫</strong><br><img src="design/current/game-ox.png" alt="阿稳 · 推靠垫的实际原生小游戏界面" width="360"></td></tr>
+<tr><td align="center"><strong>橘宝 · 小爪击掌</strong><br><img src="design/current/game-tiger.png" alt="橘宝 · 小爪击掌的实际原生小游戏界面" width="360"></td><td align="center"><strong>耳朵 · 点亮小云</strong><br><img src="design/current/game-rabbit.png" alt="耳朵 · 点亮小云的实际原生小游戏界面" width="360"></td></tr>
+<tr><td align="center"><strong>云朵 · 收集云朵</strong><br><img src="design/current/game-dragon.png" alt="云朵 · 收集云朵的实际原生小游戏界面" width="360"></td><td align="center"><strong>青团 · 先左后右滚球</strong><br><img src="design/current/game-snake.png" alt="青团 · 先左后右滚球的实际原生小游戏界面" width="360"></td></tr>
+<tr><td align="center"><strong>踏踏 · 小踏步</strong><br><img src="design/current/game-horse.png" alt="踏踏 · 小踏步的实际原生小游戏界面" width="360"></td><td align="center"><strong>绵绵 · 跟随呼吸</strong><br><img src="design/current/game-sheep.png" alt="绵绵 · 跟随呼吸的实际原生小游戏界面" width="360"></td></tr>
+<tr><td align="center"><strong>桃桃 · 叶子躲猫猫</strong><br><img src="design/current/game-monkey.png" alt="桃桃 · 叶子躲猫猫的实际原生小游戏界面" width="360"></td><td align="center"><strong>啾啾 · 左右小翅膀</strong><br><img src="design/current/game-rooster.png" alt="啾啾 · 左右小翅膀的实际原生小游戏界面" width="360"></td></tr>
+<tr><td align="center"><strong>旺仔 · 抛球互动</strong><br><img src="design/current/game-dog.png" alt="旺仔 · 抛球互动的实际原生小游戏界面" width="360"></td><td align="center"><strong>噗噗 · 滑动舒展条</strong><br><img src="design/current/game-pig.png" alt="噗噗 · 滑动舒展条的实际原生小游戏界面" width="360"></td></tr>
+</table>
+
+每张图都来自对应角色的真实玩具抽屉，并执行了一次点击、滑动或呼吸操作。
+
+</details>
+
 ## 把伙伴放到桌面上
 
 启动后，从系统托盘 / Mac 菜单栏打开 **小窝 / 设置**。Windows 图标可能位于托盘的折叠区。
@@ -127,6 +143,14 @@ node setup.mjs
 3. 点击 **收好这份设置**，重启后会恢复。
 4. 收起小窝，让它待在桌面角落；拖动宠物下方的名字标签即可搬家。
 5. 需要安静时，在陪伴设置中选择专注、会议或休息。**这些是绒角本地模式，不会改变飞书账号状态。**
+
+<details>
+<summary>看看会议与休息模式</summary>
+
+<img src="design/current/native-meeting.png" alt="本地会议模式已开启" width="380">
+<img src="design/current/native-rest.png" alt="本地休息模式已开启" width="380">
+
+</details>
 
 ## 和飞书 / Lark 一起使用
 
