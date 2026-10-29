@@ -13,7 +13,7 @@ function probe(companionPid){
   if(brand)clients.push({pid:Number(app.processIdentifier),brand:brand,hidden:Boolean(app.hidden)});
  }
  if(!clients.length)return {status:'missing'};
- var windows=ObjC.deepUnwrap($.CGWindowListCopyWindowInfo($.kCGWindowListOptionOnScreenOnly,$.kCGNullWindowID))||[],candidates=[];
+ var windows=ObjC.deepUnwrap(ObjC.castRefToObject($.CGWindowListCopyWindowInfo($.kCGWindowListOptionOnScreenOnly,$.kCGNullWindowID)))||[],candidates=[];
  for(var j=0;j<windows.length;j++){
   var w=windows[j],client=null;for(var k=0;k<clients.length;k++)if(clients[k].pid===Number(w.kCGWindowOwnerPID)){client=clients[k];break;}
   if(!client||Number(w.kCGWindowLayer)!==0)continue;
@@ -26,7 +26,7 @@ function probe(companionPid){
  return {status:'minimized',brand:clients[0].brand,pid:clients[0].pid,active:false,bounds:{x:0,y:0,width:1,height:1}};
 }
 function run(argv){
- if(argv.indexOf('--self-check')!==-1){var metadata=ObjC.deepUnwrap($.CGWindowListCopyWindowInfo($.kCGWindowListOptionOnScreenOnly,$.kCGNullWindowID));if(!Array.isArray(metadata))throw Error('WINDOW_METADATA_UNAVAILABLE');emit({status:'ok',windowMetadataReadable:true});return;}
+ if(argv.indexOf('--self-check')!==-1){var metadata=ObjC.deepUnwrap(ObjC.castRefToObject($.CGWindowListCopyWindowInfo($.kCGWindowListOptionOnScreenOnly,$.kCGNullWindowID)));if(!Array.isArray(metadata))throw Error('WINDOW_METADATA_UNAVAILABLE');emit({status:'ok',windowMetadataReadable:true});return;}
  var once=argv.indexOf('--once')!==-1,companionPid=Number(argv[0])||0;
  do{try{emit(probe(companionPid));}catch(error){if(once)throw error;emit({status:'error'});}if(!once)$.NSThread.sleepForTimeInterval(1);}while(!once);
 }
