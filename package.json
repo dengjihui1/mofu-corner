@@ -30,7 +30,11 @@
     "test:social-desktop": "node tests/run-social.mjs",
     "test:wardrobe": "node tests/run-accessories.mjs",
     "test:account-desktop": "node tests/run-account-desktop.mjs",
-    "test:account-renderer": "node tests/run-account-renderer.mjs"
+    "test:account-renderer": "node tests/run-account-renderer.mjs",
+    "test:room-editor": "node tests/run-room-editor.mjs",
+    "test:home-ui": "node tests/run-home-ui.mjs",
+    "test:friend-invite": "node tests/run-friend-invite.mjs",
+    "test:room-photo": "node tests/run-room-postcard.mjs"
   },
   "engines": {
     "node": ">=22.12"

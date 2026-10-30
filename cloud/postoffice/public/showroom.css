@@ -8,3 +8,5 @@
 @media(max-width:640px){.showroom-title h1{font-size:22px;max-width:none}.showroom-title>div{min-width:0}}
 
 #showroom-scene:empty{height:clamp(340px,calc(100dvh - 300px),500px);border-radius:100px 100px 24px 24px;background:#eee2d6}@media(max-width:640px){#showroom-scene:empty{height:auto;aspect-ratio:1.18}}
+
+.showroom-photo-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:flex-end}.showroom-photo-actions button{min-height:44px;padding:8px 12px;border:1px solid #dbc9bb;border-radius:12px;background:#fffaf4;color:#70574d;font-size:13px;white-space:nowrap}.showroom-photo-actions button:disabled{opacity:.65;cursor:wait}@media(max-width:640px){.showroom-caption{flex-wrap:wrap;gap:12px}.showroom-photo-actions{width:100%;justify-content:flex-start}.showroom-photo-actions button{font-size:13px;padding:8px 14px}}

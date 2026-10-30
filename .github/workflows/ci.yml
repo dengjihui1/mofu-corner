@@ -31,6 +31,11 @@ jobs:
       - run: npm run test:wardrobe
       - run: npm run test:account-renderer
       - run: npm run test:setup
+      - run: npm run test:room-editor
+      - run: npm run test:home-ui
+      - run: npm run test:room-photo
+      - run: npm ci --prefix cloud/postoffice --omit=dev --no-audit --no-fund
+      - run: npm run test:friend-invite
       - uses: actions/setup-node@v7
         with:
           node-version: '24'
