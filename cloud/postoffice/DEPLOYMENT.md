@@ -4,7 +4,7 @@
 - 入口：https://mofu-corner-dengjihui1.netlify.app/
 - Netlify 项目：mofu-corner-dengjihui1
 - 首次生产部署：6ae44b97f977ab69f7e1f026
-- 当前生产部署：6ae470a45730bd3787964575（自由布置、账号衣橱与生肖锁定）
+- 当前生产部署：6ae4714eaeb82a9934ec3ad9（自由布置、账号衣橱与生肖锁定）
 - 数据库：Turso libSQL，mofu-postoffice，Ohio；新建空库，不迁移本机演示账号。
 - 认证：绒角号 + 密码 + 单次恢复码，无需邮件。
 - Secret：数据库令牌仅配置到 Production；未放入源码、网页或本地开发环境。
