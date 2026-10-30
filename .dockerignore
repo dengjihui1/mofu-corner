@@ -1,0 +1,12 @@
+node_modules
+**/node_modules
+.local
+.git
+.env*
+**/.env
+.taste-skill
+dist
+work
+artifacts
+**/*.log
+design

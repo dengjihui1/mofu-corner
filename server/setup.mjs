@@ -1,0 +1,3 @@
+import {fileURLToPath} from 'node:url';import {readFile} from 'node:fs/promises';import {createRequire} from 'node:module';import {findNpmCli,runNode} from '../src/bootstrap.mjs';
+const root=fileURLToPath(new URL('./',import.meta.url));const [major,minor]=process.versions.node.split('.').map(Number);if(major<24||major===24&&minor<15)throw Error('小邮局服务端需要 Node.js 24.15 或更新版本');
+const pkg=JSON.parse(await readFile(new URL('./package.json',import.meta.url),'utf8'));let ready=false;try{ready=createRequire(import.meta.url)('nodemailer/package.json').version===pkg.dependencies.nodemailer;}catch{}if(!ready)await runNode([await findNpmCli(),'ci','--no-audit','--no-fund'],root);await import('./index.mjs');

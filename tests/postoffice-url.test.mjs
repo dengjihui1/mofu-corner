@@ -1,0 +1,2 @@
+import test from 'node:test';import assert from 'node:assert/strict';import urls from '../src/postoffice-url.cjs';
+test('邮局地址仅允许 HTTPS 根地址，或本机 HTTP 测试地址',()=>{for(const s of ['https://pets.example.com','http://127.0.0.1:4718','http://localhost:4718','http://[::1]:4718'])assert.ok(urls.postofficeUrl(s));for(const s of ['javascript:alert(1)','file:///etc/passwd','http://example.com','http://192.168.1.2','https://a:b@pets.example.com','https://pets.example.com/path','https://pets.example.com/?token=x','https://pets.example.com/#x'])assert.throws(()=>urls.postofficeUrl(s));});

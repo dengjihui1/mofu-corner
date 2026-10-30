@@ -21,3 +21,7 @@ Mac 使用 `/usr/bin/osascript` 运行内置 JXA 观察器，只取进程和窗�
 Intel Mac runner 是无可用 WebGL2 硬件后端的虚拟机，其隐藏窗口测试仅对受信任的本地测试页显式使用 [Chromium 的软件 GLES 驱动](https://chromium.googlesource.com/chromium/src/+/main/docs/gpu/swiftshader.md)。该 CPU 后端采用 Chromium 文档中的显式 SwiftShader WebGL 测试开关，并使用独立临时配置目录。这只用于 `--smoke` / `--self-test` 且设置测试环境变量的进程；正常启动保留系统图形后端。CI 不代表 Intel Mac 实际 GPU 的性能验收。动态形变与表情需要 WebGL2。
 
 依据：[Electron 点击穿透](https://www.electronjs.org/docs/latest/tutorial/custom-window-interactions)、[Apple 窗口元数据](https://developer.apple.com/documentation/coregraphics/cgwindowlistcopywindowinfo(_:_:))、[GitHub runner 平台](https://docs.github.com/en/actions/reference/runners/github-hosted-runners)。
+
+## 小邮局社交模块
+
+服务端需要 Node.js 24.15+，独立于桌宠的 Node.js 22.12+ 启动环境；公开部署使用 Linux 容器。新增桌面邮局在 Windows 隐藏原生窗口中验证了真实账号、SSE、预加载权限隔离和后台通知；新模块的 macOS 实机行为仍待试用。已有桌宠三平台 CI 结论不替代社交模块的真实服务验收。

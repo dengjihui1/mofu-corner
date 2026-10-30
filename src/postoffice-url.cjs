@@ -1,0 +1,2 @@
+function postofficeUrl(value){if(typeof value!=='string'||value.length>2048)throw Error('请填写邮局地址');let u;try{u=new URL(value.trim());}catch{throw Error('请输入完整邮局地址');}const loopback=['127.0.0.1','localhost','[::1]'].includes(u.hostname);if(u.username||u.password||u.search||u.hash||u.pathname!=='/'||!(u.protocol==='https:'||u.protocol==='http:'&&loopback))throw Error('请使用 HTTPS 邮局根地址；本机测试可使用 http://127.0.0.1:4718');return u.origin;}
+module.exports={postofficeUrl};

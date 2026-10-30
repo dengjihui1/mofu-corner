@@ -1,24 +1,28 @@
 #!/usr/bin/env node
+import postofficeUrls from './src/postoffice-url.cjs';
+import {writeFile} from 'node:fs/promises';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { supportedNode, ensureDependencies, ensureConfiguration, setupLock, launchDesktop } from './src/bootstrap.mjs';
 const root = dirname(fileURLToPath(import.meta.url));
 const args = process.argv.slice(2);
 const dataRoot = resolve(process.env.PAPERPAL_DATA_DIR || join(root, '.local'));
-const allowed = ['--configure', '--no-start', '--repair', '--smoke', '--demo', '--brand', '--pet'];
+const allowed = ['--configure', '--no-start', '--repair', '--smoke', '--demo', '--brand', '--pet', '--postoffice'];
 try {
   if (!supportedNode()) throw new Error('需要 Node.js 22.12 或更新版本。请安装后重新运行。');
   for (let i = 0; i < args.length; i++) {
     if (!allowed.includes(args[i])) throw new Error(`未知选项：${args[i]}`);
-    if (['--brand', '--pet'].includes(args[i])) { if (!args[i + 1] || args[i + 1].startsWith('--')) throw new Error(`缺少 ${args[i]} 的值`); i++; }
+    if (['--brand', '--pet', '--postoffice'].includes(args[i])) { if (!args[i + 1] || args[i + 1].startsWith('--')) throw new Error(`缺少 ${args[i]} 的值`); i++; }
   }
   if (args.includes('--brand') && !['feishu', 'lark'].includes(args[args.indexOf('--brand') + 1])) throw new Error('brand 必须是 feishu 或 lark');
+  const postoffice=args.includes('--postoffice')?postofficeUrls.postofficeUrl(args[args.indexOf('--postoffice')+1]):null;
   console.log('绒角 MofuCorner · 一键准备与启动');
   const release = await setupLock(dataRoot);
   let runtime, configuration;
   try {
     runtime = await ensureDependencies(root, { repair: args.includes('--repair') });
     configuration = await ensureConfiguration(dataRoot);
+    if(postoffice)await writeFile(join(dataRoot,'postoffice.json'),JSON.stringify({url:postoffice}),{mode:0o600});
   } finally { await release(); }
   if (configuration.warning) console.log(configuration.warning);
   console.log(`宠物：${configuration.character.name}；设置保存在 ${dataRoot}`);

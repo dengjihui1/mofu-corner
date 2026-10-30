@@ -17,3 +17,5 @@ docs/visual-inspection.json
 docs/motion-performance.json
 
 .taste-skill/
+
+!deploy/.env.example

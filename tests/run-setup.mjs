@@ -34,7 +34,10 @@ const saved = JSON.parse(await readFile(join(data, 'character.json'), 'utf8'));
 if (saved.name !== '棉花' || saved.size !== 1.15) throw new Error('Saved character was overwritten');
 const explicit = await invoke(['--smoke', '--configure']);
 if (!explicit.settingsOpen) throw new Error('Explicit configuration did not open');
-const report = { date: new Date().toISOString(), freshDependencyInstall: cold, first, second, explicit, savedPreferencesPreserved: true, pathWithSpacesAndChinese: true, mouseAndKeyboardUsed: false };
+await invoke(['--smoke','--postoffice','https://pets.example.test']);
+if(JSON.parse(await readFile(join(data,'postoffice.json'),'utf8')).url!=='https://pets.example.test')throw new Error('Postoffice URL was not saved');
+try{await invoke(['--no-start','--postoffice','http://pets.example.test']);throw new Error('Insecure postoffice was accepted');}catch(error){if(!String(error.stderr).includes('HTTPS'))throw error;}
+const report = { date: new Date().toISOString(), freshDependencyInstall: cold, first, second, explicit, savedPreferencesPreserved: true, postofficeConfigurationValidated: true, pathWithSpacesAndChinese: true, mouseAndKeyboardUsed: false };
 await writeFile(join(source, 'docs', 'bootstrap-validation.json'), JSON.stringify(report, null, 2));
 if (cold) await writeFile(join(source, 'docs', 'bootstrap-clean-validation.json'), JSON.stringify(report, null, 2));
 console.log(JSON.stringify(report, null, 2));

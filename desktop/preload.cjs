@@ -1,5 +1,7 @@
 const { contextBridge, ipcRenderer } = require('electron');
 contextBridge.exposeInMainWorld('paperpal', {
+  openPostoffice: () => ipcRenderer.invoke('paperpal:open-postoffice'),
+  onPostoffice: cb => { const fn = (_, value) => cb(value); ipcRenderer.on('paperpal:postoffice', fn); return () => ipcRenderer.removeListener('paperpal:postoffice', fn); },
   snapshot: () => ipcRenderer.invoke('paperpal:get'),
   act: action => ipcRenderer.invoke('paperpal:action', action),
   listen: cb => { const fn = (_, value) => cb(value); ipcRenderer.on('paperpal:update', fn); return () => ipcRenderer.removeListener('paperpal:update', fn); },

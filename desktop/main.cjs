@@ -21,6 +21,7 @@ const brand = process.env.PAPERPAL_BRAND === 'lark' ? 'lark' : 'feishu';
 const dataRoot = process.env.PAPERPAL_DATA_DIR || join(root, '.local');
 const calendarEnabled = process.argv.includes('--experimental-calendar');
 let character;
+let postoffice, postofficeUnread=0;
 let win, tray, state, reducer, presenter, error = '', polling = false;
 let followHost = false, host = { status: 'desktop' }, stopWatching = () => {}, stopPointerTracking=()=>{},freePosition, docking = false;
 let rendererReady = false;
@@ -77,9 +78,10 @@ else app.whenReady().then(async () => {
   win.webContents.on('will-navigate', (event, url) => { if (url !== win.webContents.getURL()) event.preventDefault(); });
   win.webContents.session.setPermissionRequestHandler((_, __, callback) => callback(false));
   const allowed = event => event.sender === win.webContents && event.senderFrame === win.webContents.mainFrame;
+  postoffice=await require('./postoffice.cjs')({root,dataRoot,allowedPet:allowed,smoke,onEvent:event=>{postofficeUnread=event.unread;if(win&&!win.isDestroyed())win.webContents.send('paperpal:postoffice',{...event,quiet:state.mode!=='available'||modalOpen});}});
   const petArea=()=>screen.getDisplayMatching(dockState.footprint||win.getBounds()).workArea;
   let snapshotSequence=0;
-  const snapshot = () => ({ sequence:++snapshotSequence,state, view: presenter(state), demo, brand, error, character, companion: { followHost, host, platform:caps,docking:dockState,window:win.getBounds(),settingsOpen:modalOpen,workArea:petArea(),canFollow } });
+  const snapshot = () => ({ sequence:++snapshotSequence,state, view: presenter(state), demo, brand, error, character, postofficeUnread, companion: { followHost, host, platform:caps,docking:dockState,window:win.getBounds(),settingsOpen:modalOpen,workArea:petArea(),canFollow } });
   const recordStatus=()=>{const value={pid:process.pid,brand:host.brand||brand,hostStatus:host.status,hostActive:host.active===true,followHost,petSize:character.size,settingsOpen:modalOpen,docking:dockState,window:win.getBounds(),windowVisible:win.isVisible()};const key=JSON.stringify(value);if(key===statusKey)return;statusKey=key;statusWrites=statusWrites.catch(()=>{}).then(()=>fs.writeFile(join(dataRoot,'run','window-status.json'),key,{mode:0o600})).catch(()=>{});};
   const broadcast = () => { if (win && !win.isDestroyed()) win.webContents.send('paperpal:update', snapshot()); };
   const act = action => { state = reducer(state, action); broadcast(); };
@@ -197,6 +199,7 @@ else app.whenReady().then(async () => {
   win.webContents.on('context-menu', () => Menu.buildFromTemplate([
     { label: `摸摸${character.name}`, click: () => act({ type: 'interact', kind: 'pet' }) },
     { label: '喂一块小饼', click: () => act({ type: 'interact', kind: 'feed' }) },
+    { label: '打开小邮局', click: () => postoffice.open() },
     { label: '定制小伙伴', click: () => win.webContents.send('paperpal:configure') },
     { type: 'separator' },
     { label: '专注 25 分钟', click: () => act({ type: 'mode', mode: 'focus', minutes: 25 }) },
@@ -212,12 +215,13 @@ else app.whenReady().then(async () => {
     }
     const trayImage=nativeImage.createFromBitmap(bitmap,{width:16,height:16});if(process.platform==='darwin')trayImage.setTemplateImage(true);tray=new Tray(trayImage);
     const openSettings=()=>{modalOpen=true;fitSettings();win.show();win.webContents.send('paperpal:configure');};
-    tray.setToolTip('绒角 MofuCorner'); tray.setContextMenu(Menu.buildFromTemplate([{label:'打开小窝 / 设置',click:openSettings},{ label: '显示宠物 · 桌面陪伴', click: () => { modalOpen=false;setFollowing(false);win.webContents.send('paperpal:collapse');win.showInactive(); } }, { label: caps.windowFollowing==='experimental'?'窗口外侧陪伴（Mac 试用）':'贴在飞书 / Lark 窗口外侧', enabled:canFollow, click: () => {modalOpen=false;setFollowing(true);win.webContents.send('paperpal:collapse');} }, { label: '退出', click: () => app.quit() }]));
+    tray.setToolTip('绒角 MofuCorner'); tray.setContextMenu(Menu.buildFromTemplate([{label:'打开小窝 / 设置',click:openSettings},{label:'小邮局 · 好友与聊天',click:()=>postoffice.open()},{ label: '显示宠物 · 桌面陪伴', click: () => { modalOpen=false;setFollowing(false);win.webContents.send('paperpal:collapse');win.showInactive(); } }, { label: caps.windowFollowing==='experimental'?'窗口外侧陪伴（Mac 试用）':'贴在飞书 / Lark 窗口外侧', enabled:canFollow, click: () => {modalOpen=false;setFollowing(true);win.webContents.send('paperpal:collapse');} }, { label: '退出', click: () => app.quit() }]));
     tray.on('double-click',openSettings);
     if(process.platform==='darwin')Menu.setApplicationMenu(Menu.buildFromTemplate([{label:'绒角 MofuCorner',submenu:[{role:'about'},{label:'小窝设置',accelerator:'Command+,',click:openSettings},{type:'separator'},{role:'quit'}]}]));
   }
   await win.loadFile(join(root, 'ui', 'desktop.html'), { query: { desktop: '1', demo: demo ? '1' : '0', configure: process.argv.includes('--configure') ? '1' : '0' } });
   if (followHost) setFollowing(true);
+  postoffice.start().catch(()=>console.warn('小邮局暂时无法连接，可在托盘重新打开。'));
   const profileDir = join(dataRoot, brand, 'lark-cli');
   const poll = async () => {
     if (!calendarEnabled || demo || smoke || polling || brand !== 'feishu') return;
@@ -238,6 +242,7 @@ else app.whenReady().then(async () => {
 app.on('second-instance', (_event, args, _directory, additionalData) => {
   const request = { id: validLaunchId(additionalData?.paperpalLaunchId) ? additionalData.paperpalLaunchId : launchIdFrom(args), configure: additionalData?.configure === true || args.includes('--configure') };
   if (win && rendererReady) {
+    const postArg=args.indexOf('--postoffice');if(postArg>=0)postoffice.configureUrl(args[postArg+1]).catch(error=>console.error(error.message));
     // Pin the configuration window before the next host poll can hide it.
     if (request.configure) {modalOpen=true;win.show();win.webContents.send('paperpal:configure');}
     else if(!followHost)win.showInactive();
@@ -245,4 +250,4 @@ app.on('second-instance', (_event, args, _directory, additionalData) => {
   } else pendingLaunches.push(request);
 });
 app.on('window-all-closed', () => app.quit());
-app.on('before-quit', () => { stopWatching();stopPointerTracking();if (!state || smoke) return; try { require('node:fs').writeFileSync(join(dataRoot, 'preferences.json'), JSON.stringify({ mode: state.mode, until: state.until, affection: state.affection, followHost }), { mode: 0o600 }); } catch {} });
+app.on('before-quit', () => { postoffice?.dispose();stopWatching();stopPointerTracking();if (!state || smoke) return; try { require('node:fs').writeFileSync(join(dataRoot, 'preferences.json'), JSON.stringify({ mode: state.mode, until: state.until, affection: state.affection, followHost }), { mode: 0o600 }); } catch {} });

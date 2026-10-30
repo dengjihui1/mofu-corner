@@ -47,3 +47,5 @@ html:has(body.desktop-preview){width:100%;height:100%;background:#eee8e1!importa
 .state-badge,.friends-title span,#shape{font-size:11px}
 
 .game-help:empty{display:none}
+
+.nest-foot-links{display:flex;align-items:center;gap:16px}.nest-foot #native-postoffice{color:var(--nest-rose);font-weight:600}#postoffice-unread{display:inline-grid;place-items:center;min-width:14px;height:14px;background:var(--nest-rose);color:#fffaf4;border-radius:8px;font:10px var(--nest-font);padding:0 3px;margin-left:2px}

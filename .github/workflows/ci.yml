@@ -29,13 +29,18 @@ jobs:
         run: /usr/bin/osascript -l JavaScript platform/macos-host.js --self-check
       - run: npm run test:desktop
       - run: npm run test:setup
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+      - run: npm ci --prefix server --no-audit --no-fund
+      - run: npm run test:social-desktop
       - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: validation-${{ matrix.os }}
           path: docs/*validation*.json
   source:
-    needs: desktop
+    needs: [desktop, postoffice]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
@@ -47,3 +52,32 @@ jobs:
         with:
           name: paperpal-source
           path: dist/
+
+  postoffice:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: server/package-lock.json
+      - run: npm ci --prefix server --no-audit --no-fund
+      - run: npm test --prefix server
+      - name: Validate deployment configuration
+        run: |
+          cp deploy/.env.example deploy/.env
+          docker compose --env-file deploy/.env -f deploy/compose.yml config --quiet
+          docker run --rm --network none -e DOMAIN=localhost -v "$PWD/deploy/Caddyfile:/etc/caddy/Caddyfile:ro" caddy:2.11.2-alpine caddy validate --config /etc/caddy/Caddyfile
+      - name: Build and verify the production container
+        run: |
+          docker build -f deploy/Dockerfile -t mofucorner-postoffice:ci .
+          docker run -d --name postoffice-ci --env-file deploy/.env -p 127.0.0.1:14718:4718 -v postoffice-ci-data:/data mofucorner-postoffice:ci
+          curl --retry 15 --retry-delay 1 --retry-connrefused --fail http://127.0.0.1:14718/api/health
+          docker exec postoffice-ci node server/admin.mjs backup
+          docker restart postoffice-ci
+          curl --retry 15 --retry-delay 1 --retry-connrefused --fail http://127.0.0.1:14718/api/health
+      - name: Container diagnostics
+        if: always()
+        run: docker logs postoffice-ci || true

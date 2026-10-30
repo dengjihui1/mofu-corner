@@ -16,5 +16,5 @@ const invoke=args=>new Promise((done,reject)=>{
  const timer=setTimeout(()=>{p.kill();reject(Error('Screenshot capture timed out'));},90000);timer.unref();p.on('exit',()=>clearTimeout(timer));
 });
 await invoke([root,'--docs-capture']);
-await invoke([join(root,'scripts/capture-lounge.cjs')]);
+if(!process.argv.includes('--native-only'))await invoke([join(root,'scripts/capture-lounge.cjs')]);
 console.log('Documentation images saved to '+output+' using an isolated profile.');

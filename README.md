@@ -4,13 +4,13 @@
 
 **给桌面一角，添一点毛茸茸。**
 
-十二生肖毛绒桌宠 · Windows / macOS · 本地陪伴 · 终端启动
+十二生肖毛绒桌宠 · Windows / macOS · 小邮局好友互动 · 终端启动
 
 [![Windows and macOS](https://github.com/dengjihui1/mofu-corner/actions/workflows/ci.yml/badge.svg)](https://github.com/dengjihui1/mofu-corner/actions/workflows/ci.yml)
 [![MIT License](https://img.shields.io/badge/License-MIT-355846)](LICENSE)
 [![Node.js](https://img.shields.io/badge/Node.js-%E2%89%A522.12-355846)](https://nodejs.org/)
 
-[快速开始](#快速开始) · [看看互动](#摸摸它它会回应) · [桌面小窝](#把伙伴放到桌面上) · [飞书 / Lark](#和飞书--lark-一起使用) · [常见问题](#常见问题)
+[快速开始](#快速开始) · [看看互动](#摸摸它它会回应) · [桌面小窝](#把伙伴放到桌面上) · [小邮局](#小邮局让伙伴替你捎个信) · [飞书 / Lark](#和飞书--lark-一起使用) · [常见问题](#常见问题)
 
 <img src="design/current/native-partners.png" alt="奶油色桌面小窝：十二生肖伙伴选择" width="380"> <img src="design/current/native-rat-settings.png" alt="小米的照顾设置：昵称、身量、性格与窗口跟随" width="380">
 
@@ -20,7 +20,7 @@
 
 它使用独立透明窗口，支持桌面自由摆放，也支持停在飞书 / Lark 窗口外侧。默认身量 **60%**，可以拖动、调大小、切换性格，设置保存在本机。
 
-> **当前为本地陪伴 MVP。** 无需飞书应用、账号授权或企业管理员审批；当前不接收聊天消息、不读取聊天记录、不修改飞书在线状态。Mac 真实客户端跟随仍为试用功能。
+> **默认本地陪伴，社交按需连接。** 小邮局已提供独立账号、好友私聊和宠物互动，可自行部署公开注册服务；当前没有预置的官方公共服务器。飞书 / Lark 仅做窗口陪伴，不读取它们的聊天消息，也不修改账号状态。Mac 真实客户端跟随仍为试用功能。
 
 <details>
 <summary>看看窄窗口预览</summary>
@@ -106,7 +106,7 @@ node setup.mjs
 | 狗 | 旺仔 | 抛三次小球给它 |
 | 猪 | 噗噗 | 慢慢拉动舒展条到终点 |
 
-这些玩法提供进度和文字回应，共用当前可用的轻动作；不代表每只角色都已具备完整的专属骨骼动画。经典邮差小獭 **折折** 也保留在小窝底部。
+这些玩法提供进度和文字回应，共用当前可用的轻动作；不代表每只角色都已具备完整的专属骨骼动画。经典小獭 **折折** 也保留在小窝底部，属于可切换的角色；好友与聊天从独立的“小邮局”入口打开。
 
 <details>
 <summary><strong>展开查看全部十二生肖小游戏截图</strong></summary>
@@ -151,6 +151,42 @@ node setup.mjs
 <img src="design/current/native-rest.png" alt="本地休息模式已开启" width="380">
 
 </details>
+
+## 小邮局，让伙伴替你捎个信
+
+<img src="design/current/postoffice-chat.png" alt="实际小邮局聊天：小米与云朵互发文字和心心" width="960">
+
+这是绒角自己的好友服务。注册并验证邮箱后，把绒角号告诉朋友；双方同意后，便能聊两句、送颗心，或轻轻摸摸对方的伙伴。
+
+| 功能 | 怎么使用 |
+| --- | --- |
+| 注册 / 登录 | 邮箱验证后登录，可重发验证邮件与找回密码 |
+| 搜索与加好友 | 点“＋”，输入完整绒角号；在“申请”中同意 |
+| 文字私聊 | 点好友进入聊天；Enter 发送，Shift+Enter 换行 |
+| 小互动 | 聊天框上方“送颗心 / 摸摸头”，对方收到互动记录 |
+| 桌面收信 | 小邮局收起后继续连接；桌宠提示来信，专注 / 会议 / 休息时安静更新未读 |
+| 自己的小名片 | 昵称、生肖头像、允许被搜索；可屏蔽、举报、导出和注销 |
+
+<details>
+<summary>看看登录、找朋友和个人名片</summary>
+
+<img src="design/current/postoffice-login.png" alt="奶油色登录页与毛绒小米" width="760">
+<img src="design/current/postoffice-search.png" alt="按绒角号搜索真实测试账号并申请好友" width="760">
+<img src="design/current/postoffice-profile.png" alt="修改昵称、十二生肖头像与搜索隐私" width="760">
+
+</details>
+
+以上截图来自真实本地服务和两个测试账号，不含真实用户的私聊。小邮局账号独立于飞书 / Lark，不需要企业审批，也不读取企业联系人。
+
+**只想使用：** 取得部署方的邮局地址后，在小邮局连接页填写，或运行一次：
+
+```bash
+node setup.mjs --postoffice https://你的邮局域名
+```
+
+**自己部署：** 本机试用需要 Node.js **24.15+**，运行 `node server/setup.mjs` 后打开 `http://127.0.0.1:4718/`；测试验证邮件写入 `.local/postoffice/outbox/`。公开服务需域名、常驻服务器和 SMTP 发信配置，已提供 Docker Compose 与 HTTPS 配置。
+
+[完整部署、邮件配置与运营说明 →](docs/social-deployment.md)
 
 ## 和飞书 / Lark 一起使用
 
@@ -197,6 +233,8 @@ node setup.mjs --brand lark
 | `node setup.mjs --no-start` | 只准备环境，不启动窗口 |
 | `npm run preview` | 浏览器预览，默认打开 `http://127.0.0.1:4717` |
 | `npm run doctor` | 查看本机与平台能力 |
+| `node server/setup.mjs` | 启动本地小邮局（Node.js 24.15+） |
+| `node setup.mjs --postoffice https://你的邮局域名` | 配置并连接已部署的小邮局 |
 
 浏览器预览适合看形象和动作。桌面透明窗口、托盘、窗口外侧跟随需要用 `node setup.mjs` 启动；浏览器预览设置和桌面配置分别保存。
 
@@ -263,7 +301,7 @@ node setup.mjs
 <details>
 <summary><strong>可以通知新消息、聊天，或者生成我自己的宠物吗？</strong></summary>
 
-目前提供内置生肖 / 小獭选择与本地定制。真实消息接收、账号状态同步、AI 对话、上传图片生成角色及任意角色动作生成尚未开放。早期实验 / 演示入口不属于默认陪伴功能，也不会在普通启动时自动连接账号。
+小邮局已支持独立账号之间的好友私聊、心心、摸头和桌面未读提示，需要连接同一个已部署服务。飞书 / Lark 消息接收与状态同步、AI 对话、图片生成自定义宠物尚未开放。默认本地陪伴不会连接账号。
 
 </details>
 
@@ -280,7 +318,7 @@ npm run package:source
 ```
 
 - `docs:screenshots` 用临时配置启动隐藏 Electron 窗口，走真实 IPC 与界面操作，生成本文的小窝截图、生肖阵容和动作关键帧；不会修改你的 `.local/`。
-- `package:source` 输出 `dist/mofu-corner-0.6.3-source.zip` 与 SHA-256，不包含依赖、本机数据或历史设计稿。
+- `package:source` 输出 `dist/mofu-corner-0.7.0-source.zip` 与 SHA-256，不包含依赖、本机数据或历史设计稿。
 - 三平台检查与源码包可在 [GitHub Actions](https://github.com/dengjihui1/mofu-corner/actions) 查看。CI 的合成窗口定位不等同于真实飞书客户端人工验收。
 
 | 目录 | 内容 |
@@ -289,6 +327,7 @@ npm run package:source
 | `ui/` | 小窝、内置角色、连续轻动作与表情 |
 | `src/` | 配置、存储、模式、窗口停靠与平台适配 |
 | `platform/` | Windows / macOS 窗口元数据观察器 |
+| `server/` · `deploy/` | 小邮局账号、好友、聊天与公开部署配置 |
 | `scripts/` · `tests/` | 文档截图、源码打包与自动验收 |
 | `design/current/` | 当前版本的真实截图和渲染器图集 |
 
@@ -296,7 +335,7 @@ npm run package:source
 
 ## English
 
-**MofuCorner** is a local desktop companion with twelve plush zodiac characters, small continuous motions, expressions and simple games. Clone the repository and run `node setup.mjs` with Node.js 22.12+ and a WebGL2-capable desktop. Windows and macOS share the same source. Feishu / Lark window-edge companionship is available, with real-client macOS behavior still experimental. Chat messages, account-status synchronization and AI conversation are not connected. No company app approval is needed for the default local companion.
+**MofuCorner** is a local desktop companion with twelve plush zodiac characters, small continuous motions, expressions and simple games. Clone the repository and run `node setup.mjs` with Node.js 22.12+ and a WebGL2-capable desktop. Windows and macOS share the same source. Feishu / Lark window-edge companionship is available, with real-client macOS behavior still experimental. An optional self-hosted Post Office adds email-verified accounts, friend requests, private text chat and pet gestures. Its server requires Node.js 24.15+; no official public endpoint is bundled. Feishu / Lark messages, their account-status synchronization and AI conversation are not connected. No company app approval is needed for the default local companion.
 
 ## 致谢与许可
 

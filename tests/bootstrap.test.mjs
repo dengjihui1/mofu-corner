@@ -1,4 +1,5 @@
 import test from 'node:test';
+import {createHash} from 'node:crypto';
 import assert from 'node:assert/strict';
 import { mkdtemp, mkdir, writeFile, readFile, stat, utimes } from 'node:fs/promises';
 import { dirname, join, resolve } from 'node:path';
@@ -80,4 +81,22 @@ test('并发启动不会同时安装，遗留空锁过期后可恢复', async ()
   await assert.rejects(() => setupLock(dir));
   const old = new Date(Date.now() - 120000); await utimes(lock, old, old);
   const releaseRecovered = await setupLock(dir); await releaseRecovered();
+});
+
+
+test('应用版本更新不重装相同依赖，旧安装记录可迁移', async () => {
+  const dir=await scratch(),pkg=join(dir,'node_modules','electron');await mkdir(pkg,{recursive:true});
+  await writeFile(join(pkg,'package.json'),JSON.stringify({version:'1.0.0',main:'index.cjs'}));
+  await writeFile(join(pkg,'index.cjs'),'module.exports=__dirname+"/runtime-stub"');await writeFile(join(pkg,'runtime-stub'),'fixture');
+  const manifest={name:'mofu',version:'1.0.0',dependencies:{electron:'1.0.0'}};
+  const lock={name:'mofu',version:'1.0.0',lockfileVersion:3,packages:{'':manifest,'node_modules/electron':{version:'1.0.0',integrity:'fixed'}}};
+  const previous=JSON.stringify(lock,null,2)+'\n';
+  await writeFile(join(dir,'node_modules','.paperpal-install.json'),JSON.stringify({version:'1.0.0',lockHash:createHash('sha256').update(previous).digest('hex')}));
+  manifest.version='1.1.0';lock.version='1.1.0';await writeFile(join(dir,'package.json'),JSON.stringify(manifest));await writeFile(join(dir,'package-lock.json'),JSON.stringify(lock,null,2)+'\n');
+  let installs=0;const run=async()=>{installs++;};
+  assert.equal((await ensureDependencies(dir,{run,log(){}})).installed,false);assert.equal(installs,0);
+  manifest.version='1.2.0';lock.version='1.2.0';await writeFile(join(dir,'package.json'),JSON.stringify(manifest));await writeFile(join(dir,'package-lock.json'),JSON.stringify(lock,null,2)+'\n');
+  assert.equal((await ensureDependencies(dir,{run,log(){}})).installed,false);assert.equal(installs,0);
+  lock.packages['node_modules/electron'].integrity='changed';await writeFile(join(dir,'package-lock.json'),JSON.stringify(lock));
+  assert.equal((await ensureDependencies(dir,{run,log(){}})).installed,true);assert.equal(installs,1);
 });

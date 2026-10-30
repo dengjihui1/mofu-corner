@@ -34,6 +34,9 @@ export async function ensureDependencies(root, { run = runNode, log = console.lo
   const manifest = JSON.parse(await readFile(join(root, 'package.json'), 'utf8'));
   const lock = await readFile(join(root, 'package-lock.json'));
   const lockHash = fingerprint(lock);
+  const lockData=JSON.parse(lock.toString('utf8'));
+  const dependencyData=structuredClone(lockData);delete dependencyData.version;if(dependencyData.packages?.[''])delete dependencyData.packages[''].version;
+  const dependencyHash=fingerprint(JSON.stringify(dependencyData));
   const stampFile = join(root, 'node_modules', '.paperpal-install.json');
   let stamp;
   try { stamp = JSON.parse(await readFile(stampFile, 'utf8')); } catch {}
@@ -42,8 +45,16 @@ export async function ensureDependencies(root, { run = runNode, log = console.lo
     try { const installed = JSON.parse(await readFile(join(root, 'node_modules', name, 'package.json'), 'utf8')); if (installed.version !== version) packagesMatch = false; }
     catch { packagesMatch = false; }
   }
+  // Older stamps hashed the application version too. Migrate only when the complete
+  // old lockfile matches after restoring that version; real dependency changes still reinstall.
+  let legacyMatch=stamp?.lockHash===lockHash;
+  if(stamp&&!stamp.dependencyHash&&stamp.version){const previous=structuredClone(lockData);previous.version=stamp.version;if(previous.packages?.[''])previous.packages[''].version=stamp.version;const text=JSON.stringify(previous,null,2)+'\n';legacyMatch ||= [text,text.replaceAll('\n','\r\n')].some(value=>fingerprint(value)===stamp.lockHash);}
+  const changed=stamp&&(stamp.dependencyHash?stamp.dependencyHash!==dependencyHash:!legacyMatch);
   let installed = false;
-  if (repair || !packagesMatch || stamp && (stamp.lockHash !== lockHash || stamp.platform && stamp.platform !== process.platform || stamp.arch && stamp.arch !== process.arch)) {
+  if (repair || !packagesMatch || changed || stamp && (stamp.platform && stamp.platform !== process.platform || stamp.arch && stamp.arch !== process.arch)) {
+    // Probe the executable before npm ci can remove any files from an active Windows install.
+    const runtime=join(root,'node_modules','electron','dist','electron.exe');
+    if(process.platform==='win32'&&await exists(runtime)){try{const handle=await open(runtime,'r+');await handle.close();}catch(error){if(['EPERM','EACCES','EBUSY'].includes(error.code))throw new Error('桌面运行时正被占用或不可写。请先从托盘退出绒角，再重新运行；现有依赖未修改。');throw error;}}
     log('首次准备依赖，正在安装。下载可能需要几分钟…');
     await run([await findNpmCli(), 'ci', '--no-audit', '--no-fund'], root);
     installed = true;
@@ -61,7 +72,7 @@ export async function ensureDependencies(root, { run = runNode, log = console.lo
   }
   if (!executable) throw new Error('桌面运行时尚未下载成功。可稍后重新运行 node setup.mjs --repair。');
   await mkdir(dirname(stampFile), { recursive: true });
-  await writeFile(stampFile, JSON.stringify({ version: manifest.version, lockHash,platform:process.platform,arch:process.arch }), { mode: 0o600 });
+  await writeFile(stampFile, JSON.stringify({ version: manifest.version, lockHash,dependencyHash,platform:process.platform,arch:process.arch }), { mode: 0o600 });
   return { executable, installed };
 }
 
