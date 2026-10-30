@@ -1,11 +1,12 @@
 import {createServer} from 'node:http';
-import {readFile} from 'node:fs/promises';
+import {readFile,readdir} from 'node:fs/promises';
 import {resolve,extname,sep} from 'node:path';
 import {createClient} from '@libsql/client';
 import {handle} from '../lib/api.mjs';
 import {storage} from '../lib/storage.mjs';
 const root=resolve('public'),client=createClient({url:'file::memory:'});
-await client.executeMultiple('PRAGMA foreign_keys=ON;'+await readFile('migrations/0001_initial.sql','utf8'));
+await client.execute('PRAGMA foreign_keys=ON');
+for(const name of (await readdir('migrations')).filter(x=>x.endsWith('.sql')).sort())await client.executeMultiple(await readFile('migrations/'+name,'utf8'));
 const database=storage(client),types={'.html':'text/html; charset=utf-8','.mjs':'text/javascript','.css':'text/css','.svg':'image/svg+xml','.png':'image/png'};
 const server=createServer(async(req,res)=>{try{
  const url=new URL(req.url,'http://127.0.0.1:4722');

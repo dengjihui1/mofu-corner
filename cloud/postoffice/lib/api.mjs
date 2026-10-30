@@ -1,3 +1,4 @@
+import {homeRoute,exportHome} from './home.mjs';
 import {randomUUID,randomBytes} from 'node:crypto';
 import {passwordHash,passwordMatches,validPassword,token,digest,sessionCookie} from './crypto.mjs';
 import {store,limit,social,publicUser,clean,fail,species} from './social.mjs';
@@ -13,7 +14,7 @@ export async function handle(request,db){
  try{
   if(!db)fail(503,'邮局正在准备，请稍后再来');const s=store(db),{get,run,batch}=s,url=new URL(request.url),path=url.pathname.slice(4),method=request.method,now=Date.now();
   if(method==='GET'&&path==='/health'){await get('SELECT 1 AS ok');return json({ok:true,service:'mofucorner-postoffice',storage:'libSQL'});}
-  if(method==='GET'&&path==='/config')return json({registration:true,relationships:true,authMode:'handle-recovery',transport:'poll',retentionDays:180,development:false,operator:'绒角小邮局',support:''});
+  if(method==='GET'&&path==='/config')return json({registration:true,relationships:true,home:true,authMode:'handle-recovery',transport:'poll',retentionDays:180,development:false,operator:'绒角小邮局',support:''});
   const ip=digest(request.headers.get('cf-connecting-ip')||'unknown');if(method==='GET')readLimit(ip);else await limit(s,'all:'+ip,240);
   let data={};if(!['GET','HEAD'].includes(method)){
    if(request.headers.get('origin')!==url.origin)fail(403,'请从邮局页面操作');if(!request.headers.get('content-type')?.startsWith('application/json'))fail(415,'请使用 JSON 请求');
@@ -47,6 +48,7 @@ export async function handle(request,db){
    if(path==='/account/delete'){await run('DELETE FROM users WHERE id=? AND EXISTS(SELECT 1 FROM sessions WHERE hash=?)',me.id,sessionHash);headers['Set-Cookie']=sessionCookie('',url.protocol==='https:',0);return json({ok:true});}
    const code=recovery(),changed=await run('UPDATE users SET recovery_hash=? WHERE id=? AND EXISTS(SELECT 1 FROM sessions WHERE hash=? AND expires>?)',recoveryHash(code),me.id,sessionHash,Date.now());if(!changed.meta.changes)fail(401,'请重新登录');return json({recoveryCode:code});
   }
+  if(path==='/home'||path.startsWith('/home/'))return json(await homeRoute(s,me,path,method,data,now));
   if(me.seen<now-30000)await run('UPDATE users SET seen=? WHERE id=?',now,me.id);
   if((path==='/friends'||path==='/sync')&&method==='GET'){
    const lease=await get("INSERT INTO limits(key,count,expires) VALUES('maintenance',0,?) ON CONFLICT(key) DO UPDATE SET expires=excluded.expires WHERE expires<=? RETURNING key",now+3600000,now);
@@ -56,6 +58,6 @@ export async function handle(request,db){
    const [contacts,requests]=await Promise.all([social(s,me,'/friends','GET',{},url),social(s,me,'/requests','GET',{},url)]);
    return json({...contacts,requests});
   }
-  const result=await social(s,me,path,method,data,url);return json(result);
+  const result=await social(s,me,path,method,data,url);if(path==='/account/export')result.home=await exportHome(s,me.id);return json(result);
  }catch(e){const status=e.status||500;if(status===500)console.error('POSTOFFICE_ERROR',e.name);return json({error:status===500?'邮局暂时忙碌，请稍后重试':e.message},status);}
 }

@@ -1,3 +1,4 @@
+import {rewardSocial} from './home.mjs';
 import {randomUUID} from 'node:crypto';
 import {relationshipType} from './relationship-types.ts';
 export const fail=(status,message)=>{throw Object.assign(Error(message),{status});};
@@ -51,9 +52,9 @@ export async function social(s,me,path,method,data,url){
   if(method==='GET'&&chat[2]==='messages'){const before=Number(url.searchParams.get('before'))||Number.MAX_SAFE_INTEGER,after=Math.max(0,Number(url.searchParams.get('after'))||0);const rows=await all('SELECT * FROM messages WHERE ((sender=? AND recipient=?) OR (sender=? AND recipient=?)) AND id<? AND id>? AND created>? ORDER BY id '+(url.searchParams.has('after')?'ASC':'DESC')+' LIMIT 61',me.id,id,id,me.id,before,after,retention);return {messages:url.searchParams.has('after')?rows.slice(0,60):rows.slice(0,60).reverse(),hasMore:rows.length>60};}
   if(method==='POST'&&chat[2]==='messages'){
    const kind=data.kind,clientId=clean(data.clientId,80);if(!['text','heart','pat'].includes(kind))fail(400,'未知互动');let text='';if(kind==='text'){if(typeof data.text!=='string'||!data.text.trim()||data.text.trim().length>1000||/[\x00-\x08\x0b\x0c\x0e-\x1f]/.test(data.text))fail(400,'来信需要 1–1000 个字符');text=data.text.trim();}
-   const duplicate=await get('SELECT * FROM messages WHERE sender=? AND client_id=?',me.id,clientId);if(duplicate){if(duplicate.recipient!==id||duplicate.kind!==kind||duplicate.body!==text)fail(409,'发送标识已使用');return {message:duplicate};}
+   const duplicate=await get('SELECT * FROM messages WHERE sender=? AND client_id=?',me.id,clientId);if(duplicate){if(duplicate.recipient!==id||duplicate.kind!==kind||duplicate.body!==text)fail(409,'发送标识已使用');await rewardSocial(s,me.id,id,kind);return {message:duplicate};}
    await limit(s,'message:'+me.id,40);if(kind!=='text')await limit(s,'gesture:'+me.id+':'+id,1,8000);
-   const message=await get(`INSERT INTO messages(sender,recipient,kind,body,client_id,created) SELECT ?,?,?,?,?,? WHERE ${guard} RETURNING *`,me.id,id,kind,text,clientId,now,...guardArgs(id));if(!message)fail(403,'好友状态已变化');return {message};
+   const message=await get(`INSERT INTO messages(sender,recipient,kind,body,client_id,created) SELECT ?,?,?,?,?,? WHERE ${guard} RETURNING *`,me.id,id,kind,text,clientId,now,...guardArgs(id));if(!message)fail(403,'好友状态已变化');await rewardSocial(s,me.id,id,kind);return {message};
   }
   if(method==='POST'&&chat[2]==='read'){const max=(await get('SELECT MAX(id) AS n FROM messages WHERE (sender=? AND recipient=?) OR (sender=? AND recipient=?)',me.id,id,id,me.id)).n||0;await run('INSERT INTO reads(owner,peer,message_id) VALUES(?,?,?) ON CONFLICT(owner,peer) DO UPDATE SET message_id=MAX(message_id,excluded.message_id)',me.id,id,Math.min(max,Math.max(0,Number(data.id)||0)));return {ok:true};}
  }

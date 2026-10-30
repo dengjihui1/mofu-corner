@@ -1,10 +1,11 @@
 import assert from 'node:assert/strict';
 import {createClient} from '@libsql/client';
-import {readFileSync} from 'node:fs';
+import {readFileSync,readdirSync} from 'node:fs';
 import {handle} from '../lib/api.mjs';
 import {storage as adapt} from '../lib/storage.mjs';
 const db=createClient({url:'file::memory:'});
-await db.executeMultiple('PRAGMA foreign_keys=ON;'+readFileSync(new URL('../migrations/0001_initial.sql',import.meta.url),'utf8'));
+await db.execute('PRAGMA foreign_keys=ON');
+for(const name of readdirSync(new URL('../migrations/',import.meta.url)).filter(x=>x.endsWith('.sql')).sort())await db.executeMultiple(readFileSync(new URL('../migrations/'+name,import.meta.url),'utf8'));
 const storage=adapt(db);
 const origin='https://example.test';
 async function call(path,{session,body,origin:from=origin}={}){const res=await handle(new Request(origin+'/api'+path,{method:body?'POST':'GET',headers:{Origin:from,'Content-Type':'application/json',...(session?{Cookie:session.cookie,'X-CSRF-Token':session.csrf}:{})},body:body?JSON.stringify(body):undefined}),storage);return {status:res.status,...await res.json(),cookie:res.headers.get('set-cookie')?.split(';')[0]};}

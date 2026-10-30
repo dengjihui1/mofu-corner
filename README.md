@@ -4,7 +4,7 @@
 
 **给桌面一角，添一点毛茸茸。**
 
-十二生肖毛绒桌宠 · Windows / macOS · 小邮局好友互动 · 终端启动
+十二生肖毛绒桌宠 · Windows / macOS · 小邮局好友互动 · 个人小屋 · 终端启动
 
 [![Windows and macOS](https://github.com/dengjihui1/mofu-corner/actions/workflows/ci.yml/badge.svg)](https://github.com/dengjihui1/mofu-corner/actions/workflows/ci.yml)
 [![MIT License](https://img.shields.io/badge/License-MIT-355846)](LICENSE)
@@ -205,6 +205,14 @@ node setup.mjs --postoffice https://mofu-corner-dengjihui1.netlify.app
 **本机 / 自建服务器：** 原 `server/` 版本保留邮箱认证。本机试用需要 Node.js **24.15+**，运行 `node server/setup.mjs` 后打开 `http://127.0.0.1:4718/`；测试验证邮件写入 `.local/postoffice/outbox/`。该版本公开部署需常驻服务器、HTTPS 与 SMTP，已提供 Docker Compose。两个部署方案的数据独立，不会自动迁移账号。
 
 [完整部署、邮件配置与运营说明 →](docs/social-deployment.md)
+
+## 给自己布置一个家
+
+在小邮局登录后，点 **「我的家」**：在线陪伴和好友双向互动可以获得 **绒绒豆**，用来购买墙纸、软垫、小沙发、花草、灯具和聊天背景。首次入住赠送 20 豆，已拥有的装饰可反复换装；好友可从聊天菜单来串门。
+
+<img src="cloud/postoffice/docs/home-shop.png" alt="绒角个人小屋、绒绒豆和装饰小商店" width="1100">
+
+[打开我的家](https://mofu-corner-dengjihui1.netlify.app/) · [奖励规则、摆放与部署说明](cloud/postoffice/README.md#我的小屋与绒绒豆)
 
 ## 和飞书 / Lark 一起使用
 
