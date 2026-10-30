@@ -6,6 +6,7 @@ import {fileURLToPath} from 'node:url';
 import {openStore,SPECIES,publicUser,pair} from './store.mjs';
 import {passwordHash,passwordMatches,validPassword,token,digest,sessionCookie,cookieToken,RateLimit} from './auth.mjs';
 import {mailer} from './mail.mjs';
+import {createRelationships} from './relationships.mjs';
 const uiRoot=resolve(fileURLToPath(new URL('../ui/',import.meta.url)));
 const fail=(status,message)=>{throw Object.assign(Error(message),{status});};
 const clean=(value,max)=>{if(typeof value!=='string')fail(400,'请填写完整');const s=value.trim();if(!s||s.length>max||/[\x00-\x08\x0b\x0c\x0e-\x1f]/.test(s))fail(400,'内容长度或格式不正确');return s;};
@@ -21,6 +22,7 @@ export function createPostoffice(config,{sendMail=mailer(config)}={}){
  const presence=id=>{for(const peer of peers(id))emit(peer,'presence',{id,online:(streams.get(id)?.size||0)>0});};
  const endSessions=id=>{run('DELETE FROM sessions WHERE user_id=?',id);for(const c of streams.get(id)||[]){c.res.write('event: logout\ndata: {}\n\n');c.res.end();}};
  const requireFriend=(a,b)=>{if(a===b||!friends(a,b)||blocked(a,b)||!user(b)||user(b).banned)fail(403,'双方成为好友后才能互动');};
+ const relationships=createRelationships({store,now,emit,requireFriend,fail,limits});
  const sessionFor=req=>{const raw=cookieToken(req);if(!/^[\w-]{43}$/.test(raw))return null;return get('SELECT s.hash,s.csrf,s.expires,u.* FROM sessions s JOIN users u ON u.id=s.user_id WHERE s.hash=? AND s.expires>? AND u.verified=1 AND u.banned=0',digest(raw),now());};
  const createSession=(res,u)=>{const raw=token(),csrf=token();run('INSERT INTO sessions(hash,user_id,csrf,expires) VALUES(?,?,?,?)',digest(raw),u.id,csrf,now()+14*86400000);run('DELETE FROM sessions WHERE user_id=? AND hash NOT IN (SELECT hash FROM sessions WHERE user_id=? ORDER BY expires DESC LIMIT 5)',u.id,u.id);res.setHeader('Set-Cookie',sessionCookie(raw,config.production));return{user:{...publicUser(u),email:u.email,discoverable:!!u.discoverable},csrf};};
  const sendToken=async(u,kind)=>{const raw=token();transaction(()=>{run('DELETE FROM tokens WHERE user_id=? AND kind=?',u.id,kind);run('INSERT INTO tokens VALUES(?,?,?,?)',digest(raw),u.id,kind,now()+30*60000);});try{await sendMail({to:u.email,kind,token:raw});}catch{fail(503,'邮件暂时没有寄出，请稍后重试');}};
@@ -31,7 +33,7 @@ export function createPostoffice(config,{sendMail=mailer(config)}={}){
   const path=url.pathname,method=req.method,ip=config.trustProxy?(req.headers['x-forwarded-for']||req.socket.remoteAddress).split(',')[0].trim():req.socket.remoteAddress;
   limits.take(`all:${ip}`,300);
   if(method==='GET'&&path==='/api/health'){json(res,{ok:true,service:'mofucorner-postoffice'});return;}
-  if(method==='GET'&&path==='/api/config'){json(res,{registration:config.registration,development:!config.production,localMail:config.mailMode==='outbox',operator:config.operator,support:config.support,retentionDays:config.retentionDays});return;}
+  if(method==='GET'&&path==='/api/config'){json(res,{registration:config.registration,relationships:true,development:!config.production,localMail:config.mailMode==='outbox',operator:config.operator,support:config.support,retentionDays:config.retentionDays});return;}
   const mutating=!['GET','HEAD'].includes(method);
   if(mutating){if(req.headers.origin!==config.origin)fail(403,'请从邮局页面操作');if(!String(req.headers['content-type']).startsWith('application/json'))fail(415,'请使用 JSON 请求');}
   if(path.startsWith('/api/auth/')){
@@ -79,7 +81,7 @@ export function createPostoffice(config,{sendMail=mailer(config)}={}){
    res.on('close',()=>{clearInterval(timer);connections.delete(c);if(!connections.size){streams.delete(me.id);presence(me.id);}});return;
   }
   if(method==='GET'&&path==='/api/friends'){
-   const list=peers(me.id).map(id=>user(id)).filter(u=>u&&!u.banned&&!blocked(me.id,u.id)).map(u=>{const last=get('SELECT * FROM messages WHERE (sender=? AND recipient=?) OR (sender=? AND recipient=?) ORDER BY id DESC LIMIT 1',me.id,u.id,u.id,me.id),read=get('SELECT message_id FROM reads WHERE owner=? AND peer=?',me.id,u.id)?.message_id||0,unread=get('SELECT COUNT(*) AS n FROM messages WHERE sender=? AND recipient=? AND id>?',u.id,me.id,read).n;return{...safeUser(u),last:last||null,unread};});list.sort((a,b)=>(b.last?.created||0)-(a.last?.created||0));json(res,{friends:list});return;
+   const list=peers(me.id).map(id=>user(id)).filter(u=>u&&!u.banned&&!blocked(me.id,u.id)).map(u=>{const last=get('SELECT * FROM messages WHERE (sender=? AND recipient=?) OR (sender=? AND recipient=?) ORDER BY id DESC LIMIT 1',me.id,u.id,u.id,me.id),read=get('SELECT message_id FROM reads WHERE owner=? AND peer=?',me.id,u.id)?.message_id||0,unread=get('SELECT COUNT(*) AS n FROM messages WHERE sender=? AND recipient=? AND id>?',u.id,me.id,read).n;return{...safeUser(u),last:last||null,unread,...relationships.forUser(me.id,u.id)};});list.sort((a,b)=>(b.last?.created||0)-(a.last?.created||0));json(res,{friends:list});return;
   }
   if(method==='GET'&&path==='/api/search'){
    limits.take(`search:${me.id}`,30);const q=handleOf(url.searchParams.get('q')||'');
@@ -98,6 +100,7 @@ export function createPostoffice(config,{sendMail=mailer(config)}={}){
    if(requestMatch[2]==='accept'){if(blocked(me.id,r.sender)||!user(r.sender)||user(r.sender).banned)fail(403,'暂时不能添加这位朋友');if(peers(me.id).length>=200||peers(r.sender).length>=200)fail(409,'好友数量已达上限');transaction(()=>{run('INSERT OR IGNORE INTO friendships VALUES(?,?,?)',...pair(me.id,r.sender),now());run('DELETE FROM requests WHERE (sender=? AND recipient=?) OR (sender=? AND recipient=?)',me.id,r.sender,r.sender,me.id);});emit(r.sender,'friends',{});}else run('DELETE FROM requests WHERE id=?',r.id);
    emit(me.id,'friends',{});json(res,{ok:true});return;
   }
+  const relationResult=await relationships.route(path,method,me,authenticatedBody);if(relationResult){json(res,relationResult.data,relationResult.status||200);return;}
   const chat=path.match(/^\/api\/conversations\/([\w-]+)\/(messages|read)$/);
   if(chat){const peer=chat[1];requireFriend(me.id,peer);
    if(method==='GET'&&chat[2]==='messages'){
@@ -124,7 +127,7 @@ export function createPostoffice(config,{sendMail=mailer(config)}={}){
    run('INSERT INTO reports(id,reporter,target,message_id,reason,evidence,created) VALUES(?,?,?,?,?,?,?)',randomUUID(),me.id,target,message?.id||null,reason,message?.body||'',now());json(res,{ok:true});return;
   }
   if(method==='POST'&&path==='/api/profile'){const data=await authenticatedBody(),name=clean(data.name,20);if(!SPECIES.includes(data.species))fail(400,'请选择已有伙伴');run('UPDATE users SET name=?,species=?,discoverable=? WHERE id=?',name,data.species,data.discoverable===true?1:0,me.id);for(const id of peers(me.id))emit(id,'friends',{});json(res,{user:{...publicUser(user(me.id)),email:me.email,discoverable:data.discoverable===true}});return;}
-  if(method==='GET'&&path==='/api/account/export'){json(res,{exportedAt:new Date().toISOString(),profile:{...publicUser(me),email:me.email},friends:peers(me.id).map(id=>publicUser(user(id))),messages:all('SELECT * FROM messages WHERE sender=? OR recipient=? ORDER BY id',me.id,me.id),requests:requestList(me.id)});return;}
+  if(method==='GET'&&path==='/api/account/export'){json(res,{exportedAt:new Date().toISOString(),profile:{...publicUser(me),email:me.email},friends:peers(me.id).map(id=>({...publicUser(user(id)),...relationships.forUser(me.id,id)})),messages:all('SELECT * FROM messages WHERE sender=? OR recipient=? ORDER BY id',me.id,me.id),requests:requestList(me.id)});return;}
   if(method==='POST'&&path==='/api/account/delete'){limits.take(`sensitive:${me.id}`,5,15*60000);const data=await authenticatedBody();if(typeof data.password!=='string'||data.password.length>128||!await passwordMatches(data.password,me.password))fail(400,'密码不正确');if(!sessionFor(req))fail(401,'请重新登录');const ids=peers(me.id);endSessions(me.id);run('DELETE FROM users WHERE id=?',me.id);for(const id of ids)emit(id,'friends',{});res.setHeader('Set-Cookie',sessionCookie('',config.production,0));json(res,{ok:true});return;}
   fail(404,'没有找到这个操作');
  }
@@ -135,7 +138,7 @@ export function createPostoffice(config,{sendMail=mailer(config)}={}){
   try{
    const url=new URL(req.url,config.origin);if(url.pathname.startsWith('/api/')){await route(req,res,url);return;}
    if(req.method!=='GET'&&req.method!=='HEAD')fail(405,'不支持此操作');
-   const named={'/':'postoffice.html','/postoffice.html':'postoffice.html','/postoffice.css':'postoffice.css','/postoffice.mjs':'postoffice.mjs','/postoffice-avatars.mjs':'postoffice-avatars.mjs','/rig-assets.mjs':'rig-assets.mjs','/rig-reference.mjs':'rig-reference.mjs','/mascot.mjs':'mascot.mjs','/privacy':'postoffice-legal.html','/terms':'postoffice-legal.html','/postoffice-legal.mjs':'postoffice-legal.mjs'};
+   const named={'/':'postoffice.html','/postoffice.html':'postoffice.html','/postoffice.css':'postoffice.css','/postoffice.mjs':'postoffice.mjs','/postoffice-avatars.mjs':'postoffice-avatars.mjs','/relationships.mjs':'relationships.mjs','/postoffice-relationships.mjs':'postoffice-relationships.mjs','/rig-assets.mjs':'rig-assets.mjs','/rig-reference.mjs':'rig-reference.mjs','/mascot.mjs':'mascot.mjs','/privacy':'postoffice-legal.html','/terms':'postoffice-legal.html','/postoffice-legal.mjs':'postoffice-legal.mjs'};
    let name=named[url.pathname];if(!name&&/^\/assets\/[\w.-]+\.(png|webp|svg|jpg)$/.test(url.pathname))name=url.pathname.slice(1);if(!name)fail(404,'没有找到这个页面');
    const file=resolve(uiRoot,name);if(!file.startsWith(uiRoot+sep))fail(404,'没有找到这个页面');const info=await stat(file);if(!info.isFile())fail(404,'没有找到这个页面');
    const types={'.html':'text/html; charset=utf-8','.css':'text/css; charset=utf-8','.mjs':'text/javascript; charset=utf-8','.png':'image/png','.webp':'image/webp','.svg':'image/svg+xml','.jpg':'image/jpeg'};
@@ -143,6 +146,6 @@ export function createPostoffice(config,{sendMail=mailer(config)}={}){
   }catch(error){if(res.headersSent){res.end();return;}const status=error.status||(error.code==='ENOENT'?404:500);if(status===500)console.error('POSTOFFICE_ERROR',error.code||error.name);json(res,{error:status===500?'邮局暂时忙碌，请稍后重试':error.message},status);}
  });
  server.requestTimeout=15000;server.headersTimeout=10000;
- const cleanup=()=>{const time=now();run('DELETE FROM sessions WHERE expires<?',time);run('DELETE FROM tokens WHERE expires<?',time);run('DELETE FROM messages WHERE created<?',time-config.retentionDays*86400000);run('DELETE FROM requests WHERE created<?',time-30*86400000);run('DELETE FROM reports WHERE created<?',time-config.retentionDays*86400000);run('DELETE FROM users WHERE verified=0 AND created<?',time-7*86400000);};cleanup();const cleanupTimer=setInterval(cleanup,3600000);cleanupTimer.unref();
+ const cleanup=()=>{const time=now();run('DELETE FROM sessions WHERE expires<?',time);run('DELETE FROM tokens WHERE expires<?',time);run('DELETE FROM messages WHERE created<?',time-config.retentionDays*86400000);run('DELETE FROM requests WHERE created<?',time-30*86400000);run('DELETE FROM relationship_requests WHERE created<=?',time-7*86400000);run('DELETE FROM reports WHERE created<?',time-config.retentionDays*86400000);run('DELETE FROM users WHERE verified=0 AND created<?',time-7*86400000);};cleanup();const cleanupTimer=setInterval(cleanup,3600000);cleanupTimer.unref();
  return{server,store,close:async()=>{clearInterval(cleanupTimer);for(const set of streams.values())for(const c of set)c.res.end();await new Promise(r=>server.close(r));store.close();}};
 }

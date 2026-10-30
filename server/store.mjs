@@ -15,7 +15,9 @@ export function openStore(dir){
  CREATE INDEX IF NOT EXISTS messages_recipient ON messages(recipient,id);
  CREATE TABLE IF NOT EXISTS reads(owner TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,peer TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,message_id INTEGER NOT NULL DEFAULT 0,PRIMARY KEY(owner,peer));
  CREATE TABLE IF NOT EXISTS reports(id TEXT PRIMARY KEY,reporter TEXT REFERENCES users(id) ON DELETE SET NULL,target TEXT REFERENCES users(id) ON DELETE SET NULL,message_id INTEGER,reason TEXT NOT NULL,evidence TEXT NOT NULL DEFAULT '',status TEXT NOT NULL DEFAULT 'open',created INTEGER NOT NULL);
- PRAGMA user_version=1;`);
+ CREATE TABLE IF NOT EXISTS relationships(id TEXT UNIQUE NOT NULL,a TEXT NOT NULL,b TEXT NOT NULL,kind TEXT NOT NULL,a_role TEXT,created INTEGER NOT NULL,PRIMARY KEY(a,b),FOREIGN KEY(a,b) REFERENCES friendships(a,b) ON DELETE CASCADE);
+ CREATE TABLE IF NOT EXISTS relationship_requests(id TEXT PRIMARY KEY,a TEXT NOT NULL,b TEXT NOT NULL,sender TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,recipient TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,kind TEXT NOT NULL,a_role TEXT,created INTEGER NOT NULL,UNIQUE(a,b),FOREIGN KEY(a,b) REFERENCES friendships(a,b) ON DELETE CASCADE);
+ PRAGMA user_version=2;`);
  const get=(sql,...args)=>db.prepare(sql).get(...args),all=(sql,...args)=>db.prepare(sql).all(...args),run=(sql,...args)=>db.prepare(sql).run(...args);
  const transaction=fn=>{db.exec('BEGIN IMMEDIATE');try{const value=fn();db.exec('COMMIT');return value;}catch(e){db.exec('ROLLBACK');throw e;}};
  return{db,get,all,run,transaction,close:()=>db.close(),backup:file=>backup(db,file)};

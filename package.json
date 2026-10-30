@@ -1,6 +1,6 @@
 {
   "name": "mofu-corner",
-  "version": "0.7.0",
+  "version": "0.8.0",
   "private": true,
   "description": "绒角 MofuCorner：住在桌面角落的十二生肖毛绒伙伴",
   "type": "module",
