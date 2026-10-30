@@ -12,7 +12,7 @@ Mac 可运行 bash Start-MofuCorner.command。
 
 托盘 / 菜单栏：打开设置、桌面陪伴、窗口外侧陪伴、退出。
 小窝可选择十二生肖和经典小獭；设置昵称、55%–130% 身量和三种性格。
-配置好后点“收好这份设置”。默认身量 60%。
+在“照顾它”配置好后点“保存并收起”。默认身量 60%。
 
 重新打开设置：node setup.mjs --configure
 Lark 标识启动：node setup.mjs --brand lark
