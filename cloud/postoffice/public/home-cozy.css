@@ -22,3 +22,25 @@
 @media(prefers-reduced-motion:reduce){*,*:before,*:after{scroll-behavior:auto!important}}
 
 .prop-shelf{top:42%;height:31%}.mofu-room[data-seat=true] .prop-seat{left:27%;top:47%;width:30%;height:37%}.mofu-room[data-seat=true] .room-pet{left:46%;width:22%}
+
+/* Room v2: a consistent camera, real floor plane and restrained material lighting.
+   The illustrated furniture is intentionally shaded; app controls remain flat. */
+.mofu-room[data-room-version="2"]{height:auto;aspect-ratio:1.6;max-height:none;border-radius:36px 36px 18px 18px;border:7px solid #fff8ef;box-shadow:inset 0 0 0 1px #af917a30}
+.showroom-stage .mofu-room[data-room-version="2"]{height:auto;aspect-ratio:1.6;max-height:none;border-radius:42px 42px 20px 20px;border-width:8px}
+.mofu-room[data-room-version="2"] .room-floor{inset:63% 0 0;border-top:0;box-shadow:inset 0 12px 12px -12px #6b48383d}
+.mofu-room[data-room-version="2"] .room-floor:after{display:none}.room-floorboards{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.mofu-room[data-room-version="2"] .room-skirting{top:62%;height:2.1%;background:#f6e7d3;border-top:1px solid #fff9ed;border-bottom:2px solid #a581624d}
+.mofu-room[data-room-version="2"] .room-wainscot{inset:44% 0 38%;border-top:3px solid #fff4df;background-color:#fff5e526;background-image:repeating-linear-gradient(90deg,transparent 0 11.7%,#9a745720 11.8% 12%,transparent 12.1% 12.5%)}
+.mofu-room[data-room-version="2"] .room-window{left:57%;top:11%;width:27%;height:36%;border-radius:45% 45% 4px 4px;border-color:#f8edda;box-shadow:inset 3px 3px 0 #6e8b8e25,3px 5px 0 #bd9f7a,4px 8px 4px #9c806526}
+.mofu-room[data-room-version="2"] .room-window:before{content:'';position:absolute;top:0;bottom:0;left:4%;width:35%;background:#fff7df28;transform:skewX(-18deg);pointer-events:none}
+.mofu-room[data-room-version="2"] .room-curtains{left:54%;top:9%;width:33%;height:40%}.mofu-room[data-room-version="2"] .room-curtains i{background-color:#e6d5bc;box-shadow:inset 4px 0 6px #b59b7430}
+.mofu-room[data-wall=wall-peach] .room-curtains i{background-color:#d8b8b6}.mofu-room[data-wall=wall-sage] .room-curtains i{background-color:#b4c2a5}
+.mofu-room[data-room-version="2"] .room-light-patch{top:64%;height:36%;left:41%;right:0;background:#fff4d727;clip-path:polygon(32% 0,70% 0,100% 100%,0 100%)}
+.mofu-room[data-room-version="2"] .room-garland{left:18%;width:65%;top:1%;height:6%}.mofu-room[data-room-version="2"] .room-garland i{width:5px;height:7px;border-color:#d1b791;background:#f7e9c5}
+.mofu-room[data-room-version="2"] .room-prop svg{overflow:visible}.mofu-room[data-room-version="2"] .prop-rug svg{filter:drop-shadow(0 2px 1px #77573c20)}
+.mofu-room[data-room-version="2"] .room-pet:before{content:'';position:absolute;bottom:1%;left:19%;width:62%;height:6%;border-radius:50%;background:#73533a24;filter:blur(2px);pointer-events:none;z-index:-1}
+.mofu-room[data-room-version="2"] .room-pet .pet-avatar{filter:drop-shadow(1px 2px 1px #765a4117)}
+.mofu-room[data-room-version="2"][data-night=true] .room-wall{background-color:#bacbd2}.mofu-room[data-room-version="2"][data-night=true] .room-floor{background-color:color-mix(in srgb,var(--room-floor) 85%,#718392)}
+.mofu-room[data-room-version="2"][data-night=true] .room-curtains i{background-color:#a6b9c4}.mofu-room[data-room-version="2"][data-night=true] .room-light-patch{background:#edf0dd15}
+.home-inspiration .mofu-room[data-room-version="2"]{height:auto;aspect-ratio:1.6;border-width:2px;border-radius:14px 14px 6px 6px}.home-inspiration .mofu-room[data-room-version="2"] .room-wainscot{border-top-width:1px}
+@media(max-width:640px){.mofu-room[data-room-version="2"],.showroom-stage .mofu-room[data-room-version="2"]{aspect-ratio:1.6;border-width:5px;border-radius:26px 26px 14px 14px}.mofu-room[data-room-version="2"] .room-window{border-width:4px}.mofu-room[data-room-version="2"] .room-curtains:before{height:2px}}

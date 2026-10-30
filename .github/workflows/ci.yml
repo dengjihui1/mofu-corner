@@ -28,6 +28,8 @@ jobs:
         if: runner.os == 'macOS'
         run: /usr/bin/osascript -l JavaScript platform/macos-host.js --self-check
       - run: npm run test:desktop
+      - run: npm run test:wardrobe
+      - run: npm run test:account-renderer
       - run: npm run test:setup
       - uses: actions/setup-node@v7
         with:
@@ -65,6 +67,9 @@ jobs:
           cache-dependency-path: server/package-lock.json
       - run: npm ci --prefix server --no-audit --no-fund
       - run: npm test --prefix server
+      - run: npm ci --prefix cloud/postoffice --no-audit --no-fund
+      - run: npm test --prefix cloud/postoffice
+      - run: npm run build --prefix cloud/postoffice
       - name: Validate deployment configuration
         run: |
           cp deploy/.env.example deploy/.env

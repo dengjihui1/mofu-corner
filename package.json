@@ -27,7 +27,10 @@
     "docs:screenshots": "node scripts/capture-docs.mjs",
     "social:start": "node server/setup.mjs",
     "social:test": "npm test --prefix server",
-    "test:social-desktop": "node tests/run-social.mjs"
+    "test:social-desktop": "node tests/run-social.mjs",
+    "test:wardrobe": "node tests/run-accessories.mjs",
+    "test:account-desktop": "node tests/run-account-desktop.mjs",
+    "test:account-renderer": "node tests/run-account-renderer.mjs"
   },
   "engines": {
     "node": ">=22.12"

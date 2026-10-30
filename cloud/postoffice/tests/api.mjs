@@ -19,6 +19,9 @@ try{
  assert.equal((await call('/auth/me',{session:a})).user.species,'rabbit');
  assert.equal((await call('/auth/me')).status,401);assert.equal((await call('/requests',{session:a,body:{userId:b.user.id},origin:'https://evil.test'})).status,403);
  assert.equal((await call('/requests',{session:a,body:{userId:b.user.id}})).status,200);const rq=(await call('/requests',{session:b})).incoming[0];assert.equal((await call('/requests/'+rq.id+'/accept',{session:c,body:{}})).status,404);assert.equal((await call('/requests/'+rq.id+'/accept',{session:b,body:{}})).status,200);
+ await call('/home/equip',{session:a,body:{itemId:'wear-bow'}});
+ const appearance=await call('/sync',{session:a});assert.equal(appearance.user.id,a.user.id);assert.equal(appearance.user.outfit.headwear,'wear-bow');assert.equal(appearance.user.species,'rabbit');
+ const appearanceLogin=await call('/auth/login',{body:{handle:'bunny_one',password}});assert.equal(appearanceLogin.user.outfit.headwear,'wear-bow','login must include currently worn accessories');
  const synced=await call('/sync',{session:a});assert.equal(synced.friends.length,1);assert.deepEqual(synced.requests,{incoming:[],outgoing:[]});
  const sent=await call('/conversations/'+b.user.id+'/messages',{session:a,body:{kind:'text',text:'你好，云朵',clientId:'test-message-1'}});assert.equal(sent.message.body,'你好，云朵');assert.equal((await call('/conversations/'+a.user.id+'/messages',{session:b})).messages.length,1);assert.equal((await call('/conversations/'+a.user.id+'/messages',{session:c})).status,403);
  const duplicate=await call('/conversations/'+b.user.id+'/messages',{session:a,body:{kind:'text',text:'你好，云朵',clientId:'test-message-1'}});assert.equal(duplicate.message.id,sent.message.id);

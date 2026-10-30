@@ -1,6 +1,5 @@
 import {dressedAvatar,wearArt} from './pet-outfit.mjs';
-import {ROOM_SLOTS,WEAR_SLOTS,placeNode} from './room-layout.mjs';
-import {avatar} from './postoffice-avatars.mjs';
+import {ROOM_SLOTS,WEAR_SLOTS,placeNode,defaultLayout} from './room-layout.mjs';
 const ns='http://www.w3.org/2000/svg';let artSequence=0;
 export function itemArt(item){
  if(WEAR_SLOTS.includes(item.slot))return wearArt(item);
@@ -25,15 +24,28 @@ export function itemArt(item){
  if(item.slot==='table')body=`<path d="M23 61L19 93M77 61L81 93M47 65V92" stroke="#b89372" stroke-width="6" stroke-linecap="round"/><ellipse cx="50" cy="58" rx="45" ry="18" fill="#b99372"/><ellipse cx="50" cy="53" rx="45" ry="18" fill="${c}"/><ellipse cx="32" cy="48" rx="15" ry="5" fill="#f8eddb"/><path d="M23 36H40V45Q32 55 23 45Z" fill="#f4e4ce"/><path d="M40 37Q51 35 46 43Q44 46 40 44" stroke="#e5c9b3" stroke-width="3" fill="none"/><ellipse cx="31" cy="36" rx="8" ry="3" fill="#ae8565"/><path d="M62 34H75V43Q69 51 62 43Z" fill="#d6a8ac"/><path d="M75 35Q83 34 81 40L76 42" stroke="#c79399" fill="none" stroke-width="2"/><ellipse cx="57" cy="57" rx="12" ry="5" fill="#f5e6d3"/><rect x="49" y="49" width="16" height="8" rx="4" fill="#d5ad7e"/><circle cx="54" cy="51" r="1" fill="#916f53"/><circle cx="60" cy="53" r="1" fill="#916f53"/>`;
  if(item.id==='wall-butter')body+=`<g fill="#d8bc79"><circle cx="20" cy="21" r="3"/><circle cx="80" cy="51" r="3"/><circle cx="22" cy="78" r="3"/></g>`;
  if(item.id==='wall-night')body+=`<path d="M21 17Q12 35 32 32Q20 44 13 31Q8 21 21 17" fill="#fff0ba"/><path d="M79 18v10M74 23h10" stroke="#fff1d5" stroke-width="2"/>`;
- const shadowId='furniture-'+(++artSequence);
- body=`<defs><filter id="${shadowId}" x="-20%" y="-20%" width="140%" height="150%"><feDropShadow dx="0" dy="1.2" stdDeviation="1" flood-color="#74543e" flood-opacity=".12"/></filter></defs><g filter="url(#${shadowId})">${body}</g>`;
+ // Light belongs to the illustrated material, not to the interface surface.
+ const materialId='furniture-'+(++artSequence);
+ const tint=(hex,amount)=>'#'+[1,3,5].map(i=>{const value=parseInt(hex.slice(i,i+2),16),target=amount>0?255:0;return Math.round(value+(target-value)*Math.abs(amount)).toString(16).padStart(2,'0');}).join('');
+ const material=['seat','table','shelf','plant','light'].includes(item.slot);
+ if(material)body=body.replaceAll(`fill="${c}"`,`fill="url(#${materialId}-tone)"`);
+ if(item.slot==='seat'&&item.id!=='seat-sage')body+=`<path d="M26 69Q50 75 74 69" fill="none" stroke="#fff4e8" stroke-opacity=".48" stroke-width="1.2"/><path d="M15 62V71M85 62V71" stroke="#fff4e8" stroke-opacity=".3" stroke-linecap="round" stroke-width="2"/>`;
+ if(item.slot==='shelf')body+=`<path d="M10 39H90M14 82H87" stroke="#f4dfbd" stroke-width="1.5"/><path d="M18 47V79M82 47V79" stroke="#85664f" stroke-opacity=".22" stroke-width="2"/>`;
+ if(item.slot==='table')body+=`<path d="M14 49Q50 31 86 49" stroke="#f7e8c8" stroke-opacity=".65" stroke-width="1.2" fill="none"/><path d="M23 69L21 87M77 69L79 87" stroke="#f6dfbb" stroke-opacity=".5" stroke-width="1.5"/>`;
+ const grounded=['seat','table','shelf','plant','light'].includes(item.slot);
+ const contact=grounded?`<ellipse cx="51" cy="95" rx="${item.slot==='light'?27:36}" ry="3.5" fill="#6d503e" opacity=".13" filter="url(#${materialId}-soft)"/>`:'';
+ const grain=['seat','rug'].includes(item.slot)?`<g mask="url(#${materialId}-silhouette)"><rect width="100" height="100" fill="url(#${materialId}-weave)" opacity=".08"/></g>`:'';
+ const definitions=`<defs><linearGradient id="${materialId}-tone" x1="0" y1="0" x2=".78" y2="1"><stop stop-color="${tint(c,.17)}"/><stop offset=".56" stop-color="${c}"/><stop offset="1" stop-color="${tint(c,-.12)}"/></linearGradient><filter id="${materialId}-shadow" x="-20%" y="-20%" width="140%" height="150%"><feDropShadow dx="1" dy="1.5" stdDeviation="1" flood-color="#634b3b" flood-opacity=".13"/></filter><filter id="${materialId}-soft"><feGaussianBlur stdDeviation="1.5"/></filter><pattern id="${materialId}-weave" width="3" height="3" patternUnits="userSpaceOnUse"><path d="M0 .5H3M.5 0V3" stroke="#fff9ee" stroke-width=".22"/><circle cx="2" cy="2" r=".22" fill="#745b4b"/></pattern><mask id="${materialId}-silhouette" style="mask-type:alpha">${body}</mask></defs>`;
+ body=definitions+contact+`<g filter="url(#${materialId}-shadow)">${body}${grain}</g>`;
+
  const svg=document.createElementNS(ns,'svg');svg.setAttribute('viewBox','0 0 100 100');svg.setAttribute('aria-hidden','true');svg.innerHTML=body;return svg;
 }
 export function roomScene(equipped,catalog,user,layout=null){
- const byId=id=>catalog.find(x=>x.id===id),stage=document.createElement('div');stage.className='mofu-room';stage.setAttribute('role','img');stage.setAttribute('aria-label',user.name+'的小屋');
+ const byId=id=>catalog.find(x=>x.id===id),stage=document.createElement('div');stage.className='mofu-room';stage.dataset.roomVersion='2';stage.setAttribute('role','img');stage.setAttribute('aria-label',user.name+'的小屋');
  const wall=byId(equipped.wall),floor=byId(equipped.floor);stage.style.setProperty('--room-wall',wall?.color||'#f4e6d6');stage.style.setProperty('--room-floor',floor?.color||'#d9b795');stage.dataset.wall=equipped.wall;stage.dataset.night=String(equipped.wall==='wall-night');stage.dataset.seat=String(Boolean(equipped.seat));
- stage.innerHTML=`<div class="room-wall"></div><div class="room-wainscot"></div><div class="room-light-patch"></div><div class="room-floor"></div><div class="room-window"><span class="window-sun"></span><span class="window-cloud"></span><i></i></div><div class="room-curtains"><i></i><i></i></div><div class="room-skirting"></div><div class="room-garland" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>`;
- const items=layout?Object.keys(layout).map(byId).filter(item=>item&&ROOM_SLOTS.includes(item.slot)):['art','shelf','rug','seat','plant','light','table'].map(slot=>byId(equipped[slot])).filter(Boolean);
- for(const item of items){const el=document.createElement('div');el.className='room-prop prop-'+item.slot;el.dataset.node=item.id;el.dataset.slot=item.slot;el.append(itemArt(item));if(layout)placeNode(el,layout[item.id],item.slot);stage.append(el);}
- const pet=document.createElement('div');pet.className='room-pet';pet.dataset.node='pet';pet.dataset.slot='pet';pet.append(dressedAvatar(user.species,190,equipped,catalog));if(layout?.pet)placeNode(pet,layout.pet,'pet');stage.append(pet);return stage;
+ stage.innerHTML=`<div class="room-wall"></div><div class="room-wainscot"></div><div class="room-light-patch"></div><div class="room-floor"><svg class="room-floorboards" viewBox="0 0 1000 300" preserveAspectRatio="none" aria-hidden="true"><g fill="none" stroke="#8e674a" stroke-opacity=".13" stroke-width="1.5"><path d="M0 54H1000M0 128H1000M0 221H1000"/><path d="M110 0L-55 300M265 0L166 300M420 0L386 300M575 0L607 300M730 0L827 300M885 0L1048 300"/></g><g fill="#fff0d6" opacity=".1"><path d="M110 0H265L166 300H-55Z"/><path d="M420 0H575L607 300H386Z"/><path d="M730 0H885L1048 300H827Z"/></g><g fill="none" stroke="#fff1d6" stroke-opacity=".17"><path d="M115 3L-50 300M425 3L391 300M735 3L832 300"/></g></svg></div><div class="room-window"><span class="window-sun"></span><span class="window-cloud"></span><i></i></div><div class="room-curtains"><i></i><i></i></div><div class="room-skirting"></div><div class="room-garland" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>`;
+ const placement=layout||defaultLayout(equipped,catalog);
+ const items=Object.keys(placement).map(byId).filter(item=>item&&ROOM_SLOTS.includes(item.slot));
+ for(const item of items){const el=document.createElement('div');el.className='room-prop prop-'+item.slot;el.dataset.node=item.id;el.dataset.slot=item.slot;const art=itemArt(item);if(item.slot==='rug')art.setAttribute('preserveAspectRatio','none');el.append(art);placeNode(el,placement[item.id],item.slot);stage.append(el);}
+ const pet=document.createElement('div');pet.className='room-pet';pet.dataset.node='pet';pet.dataset.slot='pet';pet.append(dressedAvatar(user.species,190,equipped,catalog));if(placement.pet)placeNode(pet,placement.pet,'pet');stage.append(pet);return stage;
 }

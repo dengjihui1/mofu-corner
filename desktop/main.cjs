@@ -21,7 +21,8 @@ const brand = process.env.PAPERPAL_BRAND === 'lark' ? 'lark' : 'feishu';
 const dataRoot = process.env.PAPERPAL_DATA_DIR || join(root, '.local');
 const calendarEnabled = process.argv.includes('--experimental-calendar');
 let character;
-let postoffice, postofficeUnread=0;
+const {accountCharacter,canSaveCharacter}=require('../src/account-sync.cjs');
+let postoffice, postofficeUnread=0, account=null;
 let win, tray, state, reducer, presenter, error = '', polling = false;
 let followHost = false, host = { status: 'desktop' }, stopWatching = () => {}, stopPointerTracking=()=>{},freePosition, docking = false;
 let rendererReady = false;
@@ -78,10 +79,11 @@ else app.whenReady().then(async () => {
   win.webContents.on('will-navigate', (event, url) => { if (url !== win.webContents.getURL()) event.preventDefault(); });
   win.webContents.session.setPermissionRequestHandler((_, __, callback) => callback(false));
   const allowed = event => event.sender === win.webContents && event.senderFrame === win.webContents.mainFrame;
-  postoffice=await require('./postoffice.cjs')({root,dataRoot,allowedPet:allowed,smoke,onEvent:event=>{postofficeUnread=event.unread;if(win&&!win.isDestroyed())win.webContents.send('paperpal:postoffice',{...event,quiet:state.mode!=='available'||modalOpen});}});
+  postoffice=await require('./postoffice.cjs')({root,dataRoot,allowedPet:allowed,smoke,onEvent:event=>{postofficeUnread=event.unread;if(Object.hasOwn(event,'account')){account=event.account;character=accountCharacter(character,account,characters.createCharacter);broadcast();}if(win&&!win.isDestroyed())win.webContents.send('paperpal:postoffice',{...event,quiet:state.mode!=='available'||modalOpen});}});
+  account=postoffice.account();character=accountCharacter(character,account,characters.createCharacter);
   const petArea=()=>screen.getDisplayMatching(dockState.footprint||win.getBounds()).workArea;
   let snapshotSequence=0;
-  const snapshot = () => ({ sequence:++snapshotSequence,state, view: presenter(state), demo, brand, error, character, postofficeUnread, companion: { followHost, host, platform:caps,docking:dockState,window:win.getBounds(),settingsOpen:modalOpen,workArea:petArea(),canFollow } });
+  const snapshot = () => ({ sequence:++snapshotSequence,state, view: presenter(state), demo, brand, error, character, account, postofficeUnread, companion: { followHost, host, platform:caps,docking:dockState,window:win.getBounds(),settingsOpen:modalOpen,workArea:petArea(),canFollow } });
   const recordStatus=()=>{const value={pid:process.pid,brand:host.brand||brand,hostStatus:host.status,hostActive:host.active===true,followHost,petSize:character.size,settingsOpen:modalOpen,docking:dockState,window:win.getBounds(),windowVisible:win.isVisible()};const key=JSON.stringify(value);if(key===statusKey)return;statusKey=key;statusWrites=statusWrites.catch(()=>{}).then(()=>fs.writeFile(join(dataRoot,'run','window-status.json'),key,{mode:0o600})).catch(()=>{});};
   const broadcast = () => { if (win && !win.isDestroyed()) win.webContents.send('paperpal:update', snapshot()); };
   const act = action => { state = reducer(state, action); broadcast(); };
@@ -182,7 +184,8 @@ else app.whenReady().then(async () => {
   ipcMain.handle('paperpal:action', async (event, action) => {
     if (!allowed(event) || !action || typeof action.type !== 'string') return null;
     if (action.type === 'character-save') {
-      try { character = await storage.saveCharacter(dataRoot, action.character); broadcast(); }
+      if(!canSaveCharacter(action.character,account))return {...snapshot(),settingsError:'生肖已和账号绑定，不能更换；可以在小邮局给伙伴换装。'};
+      try { const saved=await storage.saveCharacter(dataRoot, action.character);character=accountCharacter(saved,account,characters.createCharacter);broadcast(); }
       catch { return { ...snapshot(), settingsError: '未能保存，请检查配置内容与本机目录写入权限。' }; }
     }
     if (action.type === 'follow-host') setFollowing(action.enabled);

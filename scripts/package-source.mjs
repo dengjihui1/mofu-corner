@@ -7,8 +7,8 @@ const root=dirname(dirname(fileURLToPath(import.meta.url))),pkg=JSON.parse(await
 const flag=process.argv.indexOf('--out'),out=resolve(flag<0?join(root,'dist',`${pkg.name}-${pkg.version}-source.zip`):process.argv[flag+1]);
 const files=['README.md','CHANGELOG.md','LICENSE','PRIVACY.md','package.json','package-lock.json','setup.mjs','Start-MofuCorner.cmd','Start-MofuCorner.command','Start-PaperPal.cmd','Start-PaperPal.command','开始使用.txt','.gitignore','.gitattributes','.dockerignore'];
 const docs=['platforms.md','publishing.md','social-deployment.md'];for(const name of docs)files.push(`docs/${name}`);
-async function walk(dir){for(const e of await readdir(join(root,dir),{withFileTypes:true})){if(['node_modules','.local','.git','work','dist','__pycache__'].includes(e.name))continue;const path=join(dir,e.name);if(e.isDirectory())await walk(path);else if((!e.name.startsWith('.env')||e.name==='.env.example')&&!/\.(?:log|tmp|sqlite|sqlite-wal|sqlite-shm)$/.test(e.name))files.push(path);}}
-for(const dir of ['bin','desktop','src','ui','platform','tests','scripts','.github','server','deploy'])await walk(dir);
+async function walk(dir){for(const e of await readdir(join(root,dir),{withFileTypes:true})){if(['node_modules','.local','.git','.netlify','.taste-skill','work','dist','__pycache__'].includes(e.name))continue;const path=join(dir,e.name);if(e.isDirectory())await walk(path);else if((!e.name.startsWith('.env')||e.name==='.env.example')&&!/\.(?:log|tmp|sqlite|sqlite-wal|sqlite-shm)$/.test(e.name))files.push(path);}}
+for(const dir of ['bin','desktop','src','ui','platform','tests','scripts','.github','server','deploy','cloud/postoffice','docs/screenshots'])await walk(dir);
 try{await stat(join(root,'design/current'));await walk('design/current');}catch{}
 const table=new Uint32Array(256);for(let i=0;i<256;i++){let n=i;for(let b=0;b<8;b++)n=n&1?0xedb88320^(n>>>1):n>>>1;table[i]=n>>>0;}
 function crc(data){let n=0xffffffff;for(const b of data)n=table[(n^b)&255]^(n>>>8);return (n^0xffffffff)>>>0;}

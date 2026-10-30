@@ -33,7 +33,7 @@ export async function handle(request,db){
    const u=await get('SELECT * FROM users WHERE id=?',id);return json({...await createSession(u),recoveryCode:code},201);
   }
   if(path==='/auth/login'&&method==='POST'){
-   await limit(s,'login-ip:'+ip,15,15*60000);const h=handleOf(data.handle);await limit(s,'login-account:'+h,20,15*60000);if(!validPassword(data.password))fail(400,'绒角号或密码不正确');const u=await get('SELECT * FROM users WHERE handle=? AND banned=0',h);
+   await limit(s,'login-ip:'+ip,15,15*60000);const h=handleOf(data.handle);await limit(s,'login-account:'+h,20,15*60000);if(!validPassword(data.password))fail(400,'绒角号或密码不正确');const u=await get('SELECT u.*,(SELECT json_group_object(slot,item_id) FROM home_equipment WHERE user_id=u.id AND slot IN(\'headwear\',\'neckwear\',\'carry\')) AS outfit_json FROM users u WHERE handle=? AND banned=0',h);
    if(!u){await passwordHash(data.password,'00000000000000000000000000000000');fail(400,'绒角号或密码不正确');}if(!await passwordMatches(data.password,u.password))fail(400,'绒角号或密码不正确');
    if(!await get('SELECT 1 FROM users WHERE id=? AND password=? AND banned=0',u.id,u.password))fail(401,'账号状态已变化，请重新登录');return json(await createSession(u));
   }
@@ -57,7 +57,7 @@ export async function handle(request,db){
   }
   if(path==='/sync'&&method==='GET'){
    const [contacts,requests]=await Promise.all([social(s,me,'/friends','GET',{},url),social(s,me,'/requests','GET',{},url)]);
-   return json({...contacts,requests});
+   return json({...contacts,requests,user:profile(me)});
   }
   const result=await social(s,me,path,method,data,url);if(path==='/account/export')result.home=await exportHome(s,me.id);return json(result);
  }catch(e){const status=e.status||500;if(status===500)console.error('POSTOFFICE_ERROR',e.name);return json({error:status===500?'邮局暂时忙碌，请稍后重试':e.message},status);}
