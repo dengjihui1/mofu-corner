@@ -1,5 +1,7 @@
+import {WEARABLES} from '../public/wear-catalog.mjs';
 // Prices and ownership are authoritative on the server. No cash purchases or transfers.
 export const CATALOG = [
+ ...WEARABLES,
  {id:'wall-cream',slot:'wall',name:'奶油墙纸',price:0,color:'#f4e6d6'},
  {id:'wall-peach',slot:'wall',name:'蜜桃小格',price:24,color:'#f2d9d4'},
  {id:'wall-sage',slot:'wall',name:'抹茶花园',price:36,color:'#dce5d5'},

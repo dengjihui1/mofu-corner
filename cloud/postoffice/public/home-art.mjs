@@ -1,6 +1,9 @@
+import {dressedAvatar,wearArt} from './pet-outfit.mjs';
+import {ROOM_SLOTS,WEAR_SLOTS,placeNode} from './room-layout.mjs';
 import {avatar} from './postoffice-avatars.mjs';
 const ns='http://www.w3.org/2000/svg';let artSequence=0;
 export function itemArt(item){
+ if(WEAR_SLOTS.includes(item.slot))return wearArt(item);
  const c=/^#[a-f0-9]{6}$/i.test(item.color)?item.color:'#d9b795';let body='';
  if(item.slot==='plant')body=item.id==='plant-tulip'?`<path d="M46 69V34M60 70V24M32 71V43" stroke="#7f9670" stroke-width="4"/><path d="M45 58Q24 39 23 55Q27 65 45 65M60 48Q78 28 81 45Q78 55 60 58" fill="#a4b68c"/><path d="M35 22l9 8 8-12 8 10Q63 48 47 47Q31 42 35 22M53 9l8 9 9-8 5 8Q78 33 64 34Q50 31 53 9M20 31l10 8 7-9 7 8Q46 53 32 54Q19 51 20 31" fill="${c}"/><path d="M28 69H74L68 94H35Z" fill="#ead7c3"/><path d="M27 68H76" stroke="#c1a387" stroke-width="7" stroke-linecap="round"/>`:`<path d="M50 74V30" stroke="#788f67" stroke-width="5"/><path d="M50 48C23 49 19 21 33 25Q53 30 50 48M50 39C49 15 78 10 79 22Q75 39 50 39M50 65Q17 68 22 47Q38 43 50 65M51 58Q50 37 77 44Q83 60 51 58" fill="${c}"/><path d="M28 70H74L68 94H35Z" fill="#d6ab8c"/><path d="M27 70H76" stroke="#ecd0b6" stroke-width="7" stroke-linecap="round"/>`;
  if(item.slot==='seat')body=item.id==='seat-sage'?`<path d="M14 76Q7 52 28 22Q41 6 57 19Q86 40 89 75Q82 97 50 95Q20 97 14 76" fill="${c}"/><path d="M26 73Q28 45 48 43Q70 45 76 73Q67 84 48 84Q32 83 26 73" fill="#c5d1b5"/><path d="M28 78Q49 86 72 78" stroke="#8fa582" fill="none" stroke-width="2"/>`:`<rect x="15" y="20" width="70" height="62" rx="25" fill="${c}"/><rect x="25" y="31" width="50" height="39" rx="14" fill="#edc7be"/><rect x="12" y="64" width="76" height="21" rx="10" fill="#ce9990"/><rect x="6" y="48" width="22" height="36" rx="11" fill="${c}"/><rect x="72" y="48" width="22" height="36" rx="11" fill="${c}"/><path d="M23 85v9M77 85v9" stroke="#aa826b" stroke-width="5" stroke-linecap="round"/><rect x="34" y="43" width="30" height="24" rx="9" fill="#f5e1cf"/>`;
@@ -26,10 +29,11 @@ export function itemArt(item){
  body=`<defs><filter id="${shadowId}" x="-20%" y="-20%" width="140%" height="150%"><feDropShadow dx="0" dy="1.2" stdDeviation="1" flood-color="#74543e" flood-opacity=".12"/></filter></defs><g filter="url(#${shadowId})">${body}</g>`;
  const svg=document.createElementNS(ns,'svg');svg.setAttribute('viewBox','0 0 100 100');svg.setAttribute('aria-hidden','true');svg.innerHTML=body;return svg;
 }
-export function roomScene(equipped,catalog,user){
+export function roomScene(equipped,catalog,user,layout=null){
  const byId=id=>catalog.find(x=>x.id===id),stage=document.createElement('div');stage.className='mofu-room';stage.setAttribute('role','img');stage.setAttribute('aria-label',user.name+'的小屋');
  const wall=byId(equipped.wall),floor=byId(equipped.floor);stage.style.setProperty('--room-wall',wall?.color||'#f4e6d6');stage.style.setProperty('--room-floor',floor?.color||'#d9b795');stage.dataset.wall=equipped.wall;stage.dataset.night=String(equipped.wall==='wall-night');stage.dataset.seat=String(Boolean(equipped.seat));
  stage.innerHTML=`<div class="room-wall"></div><div class="room-wainscot"></div><div class="room-light-patch"></div><div class="room-floor"></div><div class="room-window"><span class="window-sun"></span><span class="window-cloud"></span><i></i></div><div class="room-curtains"><i></i><i></i></div><div class="room-skirting"></div><div class="room-garland" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>`;
- for(const slot of ['art','shelf','rug','seat','plant','light','table']){const item=byId(equipped[slot]);if(item){const el=document.createElement('div');el.className='room-prop prop-'+slot;el.append(itemArt(item));stage.append(el);}}
- const pet=document.createElement('div');pet.className='room-pet';pet.append(avatar(user.species,190));stage.append(pet);return stage;
+ const items=layout?Object.keys(layout).map(byId).filter(item=>item&&ROOM_SLOTS.includes(item.slot)):['art','shelf','rug','seat','plant','light','table'].map(slot=>byId(equipped[slot])).filter(Boolean);
+ for(const item of items){const el=document.createElement('div');el.className='room-prop prop-'+item.slot;el.dataset.node=item.id;el.dataset.slot=item.slot;el.append(itemArt(item));if(layout)placeNode(el,layout[item.id],item.slot);stage.append(el);}
+ const pet=document.createElement('div');pet.className='room-pet';pet.dataset.node='pet';pet.dataset.slot='pet';pet.append(dressedAvatar(user.species,190,equipped,catalog));if(layout?.pet)placeNode(pet,layout.pet,'pet');stage.append(pet);return stage;
 }

@@ -11,7 +11,12 @@ const origin='https://example.test';
 async function call(path,{session,body,origin:from=origin}={}){const res=await handle(new Request(origin+'/api'+path,{method:body?'POST':'GET',headers:{Origin:from,'Content-Type':'application/json',...(session?{Cookie:session.cookie,'X-CSRF-Token':session.csrf}:{})},body:body?JSON.stringify(body):undefined}),storage);return {status:res.status,...await res.json(),cookie:res.headers.get('set-cookie')?.split(';')[0]};}
 const password='Local-test-Password!2026';
 try{
- const a=await call('/auth/register',{body:{handle:'bunny_one',name:'耳朵',password,accepted:true}}),b=await call('/auth/register',{body:{handle:'cloud_two',name:'云朵',password,accepted:true}}),c=await call('/auth/register',{body:{handle:'outside_three',name:'第三人',password,accepted:true}});assert.equal(a.status,201);assert.equal(b.status,201);assert.equal(c.status,201);assert.ok(a.recoveryCode);
+ const a=await call('/auth/register',{body:{handle:'bunny_one',name:'耳朵',password,accepted:true,species:'rabbit'}}),b=await call('/auth/register',{body:{handle:'cloud_two',name:'云朵',password,accepted:true,species:'rabbit'}}),c=await call('/auth/register',{body:{handle:'outside_three',name:'第三人',password,accepted:true,species:'rabbit'}});assert.equal(a.status,201);assert.equal(b.status,201);assert.equal(c.status,201);assert.ok(a.recoveryCode);
+ assert.equal((await call('/auth/register',{body:{handle:'no_pet',name:'未选',password,accepted:true}})).status,400);
+ assert.equal((await call('/auth/register',{body:{handle:'bad_pet',name:'错误',password,accepted:true,species:'alien'}})).status,400);
+ assert.equal((await call('/profile',{session:a,body:{name:'耳朵',species:'dog',discoverable:true}})).status,409);
+ assert.equal((await call('/profile',{session:a,body:{name:'耳朵新昵称',discoverable:true}})).status,200);
+ assert.equal((await call('/auth/me',{session:a})).user.species,'rabbit');
  assert.equal((await call('/auth/me')).status,401);assert.equal((await call('/requests',{session:a,body:{userId:b.user.id},origin:'https://evil.test'})).status,403);
  assert.equal((await call('/requests',{session:a,body:{userId:b.user.id}})).status,200);const rq=(await call('/requests',{session:b})).incoming[0];assert.equal((await call('/requests/'+rq.id+'/accept',{session:c,body:{}})).status,404);assert.equal((await call('/requests/'+rq.id+'/accept',{session:b,body:{}})).status,200);
  const synced=await call('/sync',{session:a});assert.equal(synced.friends.length,1);assert.deepEqual(synced.requests,{incoming:[],outgoing:[]});

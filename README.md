@@ -212,7 +212,7 @@ node setup.mjs --postoffice https://mofu-corner-dengjihui1.netlify.app
 
 <img src="cloud/postoffice/docs/showroom-berry.png" alt="莓果茶会：毛绒兔、兔耳抱抱椅、下午茶和窗边小夜灯" width="1100">
 
-**[免登录体验四间小屋](https://mofu-corner-dengjihui1.netlify.app/showroom.html#berry/rabbit)**：奶油早餐、莓果茶会、森林来信、月亮晚安。可以切换生肖、点宠物打招呼、分享当前搭配；登录后可从「搭配灵感」试摆。装饰已扩充至 31 款。
+**[免登录体验四间小屋](https://mofu-corner-dengjihui1.netlify.app/showroom.html#berry/rabbit)**：奶油早餐、莓果茶会、森林来信、月亮晚安。可以切换生肖、点宠物打招呼、分享当前搭配；登录后可从「搭配灵感」试摆。装饰和饰品共 37 款。小屋支持拖拽、缩放、旋转和保存；「小衣橱」可试戴头饰、围巾和挎包。账号生肖在注册时选定，之后锁定。
 
 [打开我的家](https://mofu-corner-dengjihui1.netlify.app/) · [奖励规则、摆放与部署说明](cloud/postoffice/README.md#我的小屋与绒绒豆)
 

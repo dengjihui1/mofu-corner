@@ -6,7 +6,7 @@ async function call(path,body){const r=await fetch(origin+'/api'+path,{method:bo
 const password=randomBytes(20).toString('hex');
 try{
  assert.equal((await fetch(origin+'/showroom.html')).status,200);
- const collection=await(await fetch(origin+'/home-collection.json')).json();assert.equal(collection.catalog.length,31);
+ const collection=await(await fetch(origin+'/home-collection.json')).json();assert.equal(collection.catalog.length,37);
  const registered=await call('/auth/register',{handle:'cozyqa_'+randomBytes(5).toString('hex'),password,name:'搭配验收',species:'rabbit',accepted:true});assert.equal(registered.status,201,registered.error);session=registered;
  const home=await call('/home');assert.deepEqual(home.catalog,collection.catalog);
  const bought=await call('/home/buy',{itemId:'art-bunting',price:0});assert.equal(bought.balance,2);assert.equal(bought.equipped.art,'art-bunting');

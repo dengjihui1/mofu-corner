@@ -22,13 +22,14 @@ export async function handle(request,db){
    try{data=JSON.parse(Buffer.concat(parts).toString());if(!data||Array.isArray(data)||typeof data!=='object')throw Error();}catch{fail(400,'请求格式不正确');}
   }
   const raw=cookie(request),sessionHash=digest(raw);
-  const session=()=>get('SELECT u.*,s.hash AS sessionHash,s.csrf FROM sessions s JOIN users u ON u.id=s.user_id WHERE s.hash=? AND s.expires>? AND u.banned=0',sessionHash,Date.now());
+  const session=()=>get('SELECT u.*,(SELECT json_group_object(slot,item_id) FROM home_equipment WHERE user_id=u.id AND slot IN(\'headwear\',\'neckwear\',\'carry\')) AS outfit_json,s.hash AS sessionHash,s.csrf FROM sessions s JOIN users u ON u.id=s.user_id WHERE s.hash=? AND s.expires>? AND u.banned=0',sessionHash,Date.now());
   const profile=u=>({...publicUser(u),discoverable:!!u.discoverable});
   const createSession=async u=>{const raw=token(),csrf=token();await batch([['DELETE FROM sessions WHERE user_id=? AND hash NOT IN(SELECT hash FROM sessions WHERE user_id=? ORDER BY expires DESC LIMIT 4)',u.id,u.id],['INSERT INTO sessions(hash,user_id,csrf,expires) VALUES(?,?,?,?)',digest(raw),u.id,csrf,now+14*86400000]]);headers['Set-Cookie']=sessionCookie(raw,url.protocol==='https:');return {user:profile(u),csrf};};
   if(path==='/auth/register'&&method==='POST'){
    await limit(s,'register:'+ip,8,3600000);if(data.accepted!==true)fail(400,'请先同意服务条款和隐私说明');const handle=handleOf(data.handle),name=clean(data.name,20);if(!validPassword(data.password))fail(400,'密码需要 10–128 个字符');
+   if(!species.filter(x=>x!=='otter').includes(data.species))fail(400,'请选择你的生肖伙伴，选定后不能更换');
    if(await get('SELECT 1 FROM users WHERE handle=?',handle))fail(409,'这个绒角号已有人使用');const hash=await passwordHash(data.password),code=recovery(),id=randomUUID();
-   const result=await run('INSERT OR IGNORE INTO users(id,handle,name,species,password,recovery_hash,verified,created,seen) VALUES(?,?,?,?,?,?,1,?,?)',id,handle,name,species.includes(data.species)?data.species:'rabbit',hash,recoveryHash(code),now,now);if(!result.meta.changes)fail(409,'这个绒角号已有人使用');
+   const result=await run('INSERT OR IGNORE INTO users(id,handle,name,species,password,recovery_hash,verified,created,seen) VALUES(?,?,?,?,?,?,1,?,?)',id,handle,name,data.species,hash,recoveryHash(code),now,now);if(!result.meta.changes)fail(409,'这个绒角号已有人使用');
    const u=await get('SELECT * FROM users WHERE id=?',id);return json({...await createSession(u),recoveryCode:code},201);
   }
   if(path==='/auth/login'&&method==='POST'){
