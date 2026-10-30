@@ -3,7 +3,7 @@ module.exports=async(win,output)=>{
  if(!output)throw Error('Missing documentation output directory');
  const run=(fn,arg)=>win.webContents.executeJavaScript(`(${fn.toString()})(${arg===undefined?'':JSON.stringify(arg)})`);
  const wait=async(fn)=>{const end=Date.now()+12000;while(!await run(fn)){if(Date.now()>end)throw Error('DOC_STATE_TIMEOUT');await new Promise(r=>setTimeout(r,35));}};
- async function shot(name,clip={x:14,y:14,width:412,height:420}){await run(()=>new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r))));await new Promise(r=>setTimeout(r,240));win.webContents.invalidate();const image=await win.webContents.capturePage(clip);await fs.writeFile(path.join(output,name+'.png'),image.toPNG());}
+ async function shot(name,clip={x:14,y:14,width:412,height:502}){await run(()=>document.fonts.ready.then(()=>true));await run(()=>new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r))));await new Promise(r=>setTimeout(r,240));win.webContents.invalidate();await new Promise(r=>setTimeout(r,100));const frame=await win.webContents.capturePage();await fs.writeFile(path.join(output,name+'.png'),frame.crop(clip).toPNG());}
  await wait(()=>document.querySelector('#portrait').dataset.rigReady==='true');
  await run(()=>document.querySelector('#nest-toggle').click());
  await new Promise(r=>setTimeout(r,240));
@@ -48,4 +48,8 @@ module.exports=async(win,output)=>{
  await wait(()=>document.querySelector('#nest-sheet').hidden);
  await run(()=>{document.querySelector('#nest-toggle').click();document.querySelector('[data-drawer=settings]').click();});
  await shot('native-customized');
+ await run(()=>{document.querySelector('[data-drawer=friends]').click();document.querySelector('[data-pet=rat]').click();});
+ await wait(async()=>(await window.paperpal.snapshot()).character.species==='rat'&&document.querySelector('#nest-title').textContent==='小米的小窝');
+ await run(()=>document.querySelector('[data-drawer=settings]').click());
+ await shot('native-rat-settings');
 };
