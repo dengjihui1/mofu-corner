@@ -1,0 +1,26 @@
+name: Cloud postoffice
+on:
+  push:
+    paths: ['cloud/postoffice/**', '.github/workflows/cloud-postoffice.yml']
+  pull_request:
+    paths: ['cloud/postoffice/**', '.github/workflows/cloud-postoffice.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: cloud/postoffice
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: cloud/postoffice/package-lock.json
+      - run: npm ci --omit=dev --no-audit --no-fund
+      - run: npm test
+      - run: npm run build

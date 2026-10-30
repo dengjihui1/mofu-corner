@@ -20,7 +20,7 @@
 
 它使用独立透明窗口，支持桌面自由摆放，也支持停在飞书 / Lark 窗口外侧。默认身量 **60%**，可以拖动、调大小、切换性格，设置保存在本机。
 
-> **默认本地陪伴，社交按需连接。** 小邮局已提供独立账号、好友私聊和宠物互动，可自行部署公开注册服务；当前没有预置的官方公共服务器。飞书 / Lark 仅做窗口陪伴，不读取它们的聊天消息，也不修改账号状态。Mac 真实客户端跟随仍为试用功能。
+> **默认本地陪伴，社交按需连接。** [公共小邮局已开放注册](https://mofu-corner-dengjihui1.netlify.app/)，支持绒角号、密码和恢复码，无需邮箱。服务使用免费额度，国内访问存在偶发波动，不保证所有网络可用。飞书 / Lark 仅做窗口陪伴，不读取它们的聊天消息，也不修改账号状态。Mac 真实客户端跟随仍为试用功能。
 
 <details>
 <summary>看看窄窗口预览</summary>
@@ -192,13 +192,17 @@ node setup.mjs
 
 <img src="design/current/postoffice-relationship-invite.png" alt="接收关系邀请，可确认或拒绝；旧关系在确认前保留" width="760">
 
-**只想使用：** 取得部署方的邮局地址后，在小邮局连接页填写，或运行一次：
+**只想使用：** [打开公共小邮局](https://mofu-corner-dengjihui1.netlify.app/) 注册并保存恢复码，把完整绒角号告诉朋友；双方确认好友后即可聊天。桌宠在小邮局连接页填写同一网址，或运行：
 
 ```bash
-node setup.mjs --postoffice https://你的邮局域名
+node setup.mjs --postoffice https://mofu-corner-dengjihui1.netlify.app
 ```
 
-**自己部署：** 本机试用需要 Node.js **24.15+**，运行 `node server/setup.mjs` 后打开 `http://127.0.0.1:4718/`；测试验证邮件写入 `.local/postoffice/outbox/`。公开服务需域名、常驻服务器和 SMTP 发信配置，已提供 Docker Compose 与 HTTPS 配置。
+**免费云端部署：** [Netlify + Turso 部署源码与说明](cloud/postoffice/README.md)，采用平台网址、绒角号 + 密码 + 恢复码，不需要购买域名或配置邮件。服务端与数据当前在美国 Ohio；[国内抽测与功能验收](cloud/postoffice/DEPLOYMENT.md)不等于全国可用性保证。
+
+![公开注册页面](cloud/postoffice/docs/public-registration.png)
+
+**本机 / 自建服务器：** 原 `server/` 版本保留邮箱认证。本机试用需要 Node.js **24.15+**，运行 `node server/setup.mjs` 后打开 `http://127.0.0.1:4718/`；测试验证邮件写入 `.local/postoffice/outbox/`。该版本公开部署需常驻服务器、HTTPS 与 SMTP，已提供 Docker Compose。两个部署方案的数据独立，不会自动迁移账号。
 
 [完整部署、邮件配置与运营说明 →](docs/social-deployment.md)
 
