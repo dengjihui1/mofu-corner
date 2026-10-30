@@ -24,4 +24,4 @@ Intel Mac runner 是无可用 WebGL2 硬件后端的虚拟机，其隐藏窗口�
 
 ## 小邮局社交模块
 
-服务端需要 Node.js 24.15+，独立于桌宠的 Node.js 22.12+ 启动环境；公开部署使用 Linux 容器。新增桌面邮局在 Windows 隐藏原生窗口中验证了真实账号、SSE、预加载权限隔离和后台通知；新模块的 macOS 实机行为仍待试用。已有桌宠三平台 CI 结论不替代社交模块的真实服务验收。
+服务端需要 Node.js 24.15+，独立于桌宠的 Node.js 22.12+ 启动环境；公开部署使用 Linux 容器。新增桌面邮局的 9 项原生检查已在 Windows、macOS 15 Apple Silicon 与 Intel 的 CI 中通过，覆盖真实账号、SSE、预加载权限隔离、后台通知与窄窗口。Mac 实机使用和真实邮件 / 公网服务仍需单独验收。[查看 CI](https://github.com/dengjihui1/mofu-corner/actions/workflows/ci.yml)
