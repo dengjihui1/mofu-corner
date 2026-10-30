@@ -1,3 +1,5 @@
+import {CATALOG} from '../lib/home-catalog.mjs';
+import {HOME_STYLES} from '../public/home-styles.mjs';
 import assert from 'node:assert/strict';
 import {createClient} from '@libsql/client';
 import {readFileSync,readdirSync} from 'node:fs';
@@ -10,6 +12,7 @@ const s=store(storage(db)),now=Date.parse('2026-10-30T01:00:00Z');
 async function user(id){await s.run('INSERT INTO users(id,handle,name,species,password,created,seen) VALUES(?,?,?,?,?,?,?)',id,id,id,'rabbit','fixture',now,now);await s.run('INSERT INTO sessions(hash,user_id,csrf,expires) VALUES(?,?,?,?)',id,id,'fixture',now+10*86400000);return{id,name:id,species:'rabbit',sessionHash:id};}
 async function rejects(fn,status){await assert.rejects(fn,e=>e.status===status);}
 try{
+ assert.equal(new Set(CATALOG.map(x=>x.id)).size,CATALOG.length);for(const item of CATALOG)assert.ok(Number.isInteger(item.price)&&item.price>=0);for(const room of HOME_STYLES)for(const [slot,id]of Object.entries(room.equipped))assert.equal(CATALOG.find(x=>x.id===id)?.slot,slot,'Every inspiration item must be a real catalog item in the correct slot');
  const a=await user('alice'),b=await user('bob');
  await Promise.all(Array.from({length:5},()=>homeState(s,a,now)));assert.equal((await homeState(s,a,now)).balance,20,'welcome is once per account');
  await rejects(()=>homeRoute(s,a,'/home/equip','POST',{itemId:'light-moon'},now),403);
@@ -26,6 +29,8 @@ try{
  await heartbeat(s,b,now+3600000);assert.equal((await homeState(s,b,now+3600000)).today.minutes,10,'offline gaps not rewarded');
  for(let i=1;i<=200;i++)await heartbeat(s,b,now+3600000+i*60000);
  assert.equal((await homeState(s,b,now+15600000)).today.presence,36);
+ const shelf=await homeRoute(s,b,'/home/buy','POST',{itemId:'shelf-books'},now+15600000);assert.equal(shelf.equipped.shelf,'shelf-books');const stored=await homeRoute(s,b,'/home/put-away','POST',{slot:'shelf'},now+15600000);assert.equal(stored.equipped.shelf,undefined);assert.ok(stored.owned.includes('shelf-books'));await homeRoute(s,b,'/home/equip','POST',{itemId:'shelf-books'},now+15600000);await rejects(()=>homeRoute(s,b,'/home/equip','POST',{itemId:'table-tea'},now+15600000),403);
+
  const midnight=Date.parse('2026-10-31T00:00:00+08:00');await heartbeat(s,b,midnight-30000);await heartbeat(s,b,midnight+30000);
  assert.equal((await s.get('SELECT elapsed_ms FROM home_presence WHERE user_id=?',b.id)).elapsed_ms,30000);assert.equal((await homeState(s,b,midnight+30000)).today.presence,0);
  await s.run('INSERT INTO friendships(a,b,created) VALUES(?,?,?)',a.id,b.id,now);

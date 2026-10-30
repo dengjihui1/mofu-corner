@@ -210,7 +210,9 @@ node setup.mjs --postoffice https://mofu-corner-dengjihui1.netlify.app
 
 在小邮局登录后，点 **「我的家」**：在线陪伴和好友双向互动可以获得 **绒绒豆**，用来购买墙纸、软垫、小沙发、花草、灯具和聊天背景。首次入住赠送 20 豆，已拥有的装饰可反复换装；好友可从聊天菜单来串门。
 
-<img src="cloud/postoffice/docs/home-shop.png" alt="绒角个人小屋、绒绒豆和装饰小商店" width="1100">
+<img src="cloud/postoffice/docs/showroom-berry.png" alt="莓果茶会：毛绒兔、兔耳抱抱椅、下午茶和窗边小夜灯" width="1100">
+
+**[免登录体验四间小屋](https://mofu-corner-dengjihui1.netlify.app/showroom.html#berry/rabbit)**：奶油早餐、莓果茶会、森林来信、月亮晚安。可以切换生肖、点宠物打招呼、分享当前搭配；登录后可从「搭配灵感」试摆。装饰已扩充至 31 款。
 
 [打开我的家](https://mofu-corner-dengjihui1.netlify.app/) · [奖励规则、摆放与部署说明](cloud/postoffice/README.md#我的小屋与绒绒豆)
 

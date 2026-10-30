@@ -18,6 +18,18 @@ export const CATALOG = [
  {id:'art-stars',slot:'art',name:'数星星挂画',price:40,color:'#849bb0'},
  {id:'chat-paper',slot:'chat',name:'奶油信纸',price:0,color:'#fffcf8'},
  {id:'chat-garden',slot:'chat',name:'花园来信',price:24,color:'#edf1e7'},
+ {id:'wall-butter',slot:'wall',name:'黄油小花墙',price:32,color:'#f2e3bd'},
+ {id:'wall-night',slot:'wall',name:'月光蓝墙',price:38,color:'#b7c7cf'},
+ {id:'rug-cookie',slot:'rug',name:'曲奇软垫',price:26,color:'#d9ad79'},
+ {id:'rug-petal',slot:'rug',name:'莓莓花瓣毯',price:30,color:'#e1b5bb'},
+ {id:'seat-bunny',slot:'seat',name:'兔耳抱抱椅',price:56,color:'#e8c6c4'},
+ {id:'seat-toast',slot:'seat',name:'黄油吐司沙发',price:52,color:'#dfb87d'},
+ {id:'plant-daisy',slot:'plant',name:'一篮小雏菊',price:26,color:'#f3e9d1'},
+ {id:'light-tulip',slot:'light',name:'郁金香小夜灯',price:42,color:'#d9a3ac'},
+ {id:'art-bunting',slot:'art',name:'小心意挂旗',price:18,color:'#c2cfb3'},
+ {id:'shelf-books',slot:'shelf',name:'慢慢读小书架',price:36,color:'#c79e7b'},
+ {id:'table-tea',slot:'table',name:'两人份下午茶',price:40,color:'#d7b695'},
+ {id:'chat-berry',slot:'chat',name:'草莓奶信纸',price:24,color:'#f6e8e8'},
  {id:'chat-sky',slot:'chat',name:'晴空邮票',price:24,color:'#eaf0f5'}
 ];
 export const DEFAULT_HOME={wall:'wall-cream',floor:'floor-oak',rug:'rug-oat',chat:'chat-paper'};

@@ -62,7 +62,7 @@ export async function homeRoute(s,me,path,method,data,now=Date.now()){
   return homeState(s,me,now);
  }
  if(path==='/home/put-away'&&method==='POST'){
-  if(!['seat','plant','light','art'].includes(data.slot))bad(400,'这件基础装饰不能收起');
+  if(!['seat','plant','light','art','shelf','table'].includes(data.slot))bad(400,'这件基础装饰不能收起');
   await s.run('DELETE FROM home_equipment WHERE user_id=? AND slot=?',me.id,data.slot);return homeState(s,me,now);
  }
  const visit=path.match(/^\/home\/visit\/([\w-]+)$/);
