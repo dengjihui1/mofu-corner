@@ -67,12 +67,12 @@ export async function createRoomPostcard({scene, name='小伙伴', preview=false
   const photograph=await loadImage('data:image/svg+xml;charset=utf-8,'+encodeURIComponent(svg));
   const scale=Math.min(2,1440/width), border=36, footer=92, canvas=document.createElement('canvas');
   canvas.width=Math.round(width*scale)+border*2;canvas.height=Math.round(height*scale)+border*2+footer;
-  const ctx=canvas.getContext('2d');ctx.fillStyle='#fbf5ed';ctx.fillRect(0,0,canvas.width,canvas.height);
+  const ctx=canvas.getContext('2d');ctx.fillStyle='#f3f5f0';ctx.fillRect(0,0,canvas.width,canvas.height);
   ctx.drawImage(photograph,border,border,canvas.width-border*2,canvas.height-border*2-footer);
   const baseline=canvas.height-60;
-  ctx.fillStyle='#5b4842';ctx.font='600 27px "Microsoft YaHei", "PingFang SC", sans-serif';
+  ctx.fillStyle='#252a28';ctx.font='600 27px "Microsoft YaHei", "PingFang SC", sans-serif';
   ctx.fillText(fittedText(ctx, name+'的小屋',canvas.width-240),border,baseline);
-  ctx.fillStyle='#90766d';ctx.font='17px "Microsoft YaHei", "PingFang SC", sans-serif';
+  ctx.fillStyle='#626a64';ctx.font='17px "Microsoft YaHei", "PingFang SC", sans-serif';
   ctx.fillText(preview?'搭配预览':'绒角 · 把喜欢的日子收好',border,baseline+30);
   ctx.textAlign='right';ctx.fillText(new Intl.DateTimeFormat('zh-CN',{year:'numeric',month:'2-digit',day:'2-digit',timeZone:'Asia/Shanghai'}).format(new Date()),canvas.width-border,baseline+30);
   const blob=await new Promise(resolve=>canvas.toBlob(resolve,'image/png'));

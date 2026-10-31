@@ -1,0 +1,27 @@
+@font-face{font-family:"Instrument Sans";src:url("/assets/fonts/instrument-sans-400.ttf") format("truetype");font-weight:400;font-style:normal;font-display:swap}
+@font-face{font-family:"Instrument Sans";src:url("/assets/fonts/instrument-sans-500.ttf") format("truetype");font-weight:500;font-style:normal;font-display:swap}
+@font-face{font-family:"Instrument Sans";src:url("/assets/fonts/instrument-sans-600.ttf") format("truetype");font-weight:600;font-style:normal;font-display:swap}
+:root{
+  --studio-ink:#252a28;--studio-muted:#626a64;--studio-ground:#f2f4f0;
+  --studio-paper:#fff;--studio-accent:#315c4f;--studio-line:#dce1da;
+  --studio-soft:#e7ece5;--studio-control:#c7cfc6;
+  --paper:#fff;--cream:#eef1eb;--blush:#e4ebe4;--rose:#315c4f;
+  --muted:#626a64;--line:#dce1da;--green:#315c4f;
+  font-family:"Instrument Sans","PingFang SC","Microsoft YaHei UI",sans-serif;
+  font-synthesis:none;color:var(--studio-ink);background:var(--studio-ground);
+  font-variant-numeric:tabular-nums;
+}
+body{color:var(--studio-ink);background:var(--studio-ground)}
+button,input,select,textarea{font:inherit}
+button,a,input,select,textarea{touch-action:manipulation}
+button:focus-visible,a:focus-visible,select:focus-visible,input:focus-visible,textarea:focus-visible{outline:2px solid var(--studio-accent);outline-offset:3px}
+button:disabled{opacity:.55}
+input::placeholder,textarea::placeholder{color:#707770}
+::selection{background:#dbe6db;color:#263b30}
+.primary{background:var(--studio-ink);color:white;border-radius:8px;font-weight:500}
+.primary:hover{background:#39483f}
+.soft-button{background:#edf0eb;color:var(--studio-ink);border-radius:8px}
+.soft-button:hover{background:#e3e8df}
+.post-icon{stroke-width:1.5}
+.toast{background:#293a31;color:white;border-radius:10px;box-shadow:none}
+@media(prefers-reduced-motion:no-preference){button,a{transition:background-color 140ms ease,color 140ms ease,border-color 140ms ease}}

@@ -203,7 +203,7 @@ node setup.mjs --postoffice https://mofu-corner-dengjihui1.netlify.app
 
 **免费云端部署：** [Netlify + Turso 部署源码与说明](cloud/postoffice/README.md)，采用平台网址、绒角号 + 密码 + 恢复码，不需要购买域名或配置邮件。服务端与数据当前在美国 Ohio；[国内抽测与功能验收](cloud/postoffice/DEPLOYMENT.md)不等于全国可用性保证。
 
-![公开注册页面](cloud/postoffice/docs/public-registration.png)
+![小邮局登录](docs/screenshots/studio-login-live.jpg)
 
 **本机 / 自建服务器：** 原 `server/` 版本保留邮箱认证。本机试用需要 Node.js **24.15+**，运行 `node server/setup.mjs` 后打开 `http://127.0.0.1:4718/`；测试验证邮件写入 `.local/postoffice/outbox/`。该版本公开部署需常驻服务器、HTTPS 与 SMTP，已提供 Docker Compose。两个部署方案的数据独立，不会自动迁移账号。
 
@@ -213,9 +213,9 @@ node setup.mjs --postoffice https://mofu-corner-dengjihui1.netlify.app
 
 在小邮局登录后，点 **「我的家」**：在线陪伴和好友双向互动可以获得 **绒绒豆**，用来购买墙纸、软垫、小沙发、花草、灯具和聊天背景。首次入住赠送 20 豆，已拥有的装饰可反复换装；好友可从聊天菜单来串门。
 
-<img src="docs/screenshots/home-iteration-live.png" alt="莓果茶会：毛绒兔、兔耳抱抱椅、下午茶和窗边小夜灯" width="1100">
+<img src="docs/screenshots/studio-home-live.jpg" alt="现代生活方式小屋：毛绒兔、软包椅、胡桃木家具和落地灯" width="1100">
 
-**[免登录体验四间小屋](https://mofu-corner-dengjihui1.netlify.app/showroom.html#berry/rabbit)**：奶油早餐、莓果茶会、森林来信、月亮晚安。可以切换生肖、点宠物打招呼、分享当前搭配；登录后可从「搭配灵感」试摆。装饰和饰品共 37 款。小屋支持拖拽、缩放、旋转和保存；「小衣橱」可试戴头饰、围巾和挎包。账号生肖在注册时选定，之后锁定。
+**[免登录体验四间小屋](https://mofu-corner-dengjihui1.netlify.app/showroom.html#berry/rabbit)**：奶油日光、莓果公寓、森林书房、蓝调夜色。可以切换生肖、点宠物打招呼、分享当前搭配；登录后可从「灵感」试摆。装饰和饰品共 37 款。小屋支持拖拽、缩放、旋转和保存；「穿搭」可试戴头饰、围巾和挎包。账号生肖在注册时选定，之后锁定。
 
 [打开我的家](https://mofu-corner-dengjihui1.netlify.app/) · [奖励规则、摆放与部署说明](cloud/postoffice/README.md#我的小屋与绒绒豆)
 
@@ -223,20 +223,27 @@ node setup.mjs --postoffice https://mofu-corner-dengjihui1.netlify.app
 
 [打开小屋展厅](https://mofu-corner-dengjihui1.netlify.app/showroom.html) · [登录我的家](https://mofu-corner-dengjihui1.netlify.app/)
 
-<img src="docs/screenshots/room-postcard.png" alt="从真实小屋导出的房间照片：草莓色窗帘、沙发与毛绒兔" width="850">
+<img src="docs/screenshots/room-postcard.png" alt="从真实小屋导出的房间照片：雾粉墙面、软包椅与毛绒兔" width="850">
 
 上图由“留张照片”直接导出，属于搭配预览。自己的房间以已拥有并保存的装饰为准。
 
 | 想做什么 | 操作 |
 | --- | --- |
-| 挑选装饰与饰品 | 我的家 → 小商店 / 小衣橱；可按名字搜索，筛选已拥有或买得起的物品 |
+| 挑选装饰与饰品 | 我的家 → 选物 / 穿搭；可按名字搜索，筛选已拥有或买得起的物品 |
 | 先试试看 | 选择物品预览，确认后再购买或穿戴；绒绒豆余额不足时不能购买 |
-| 自由摆放 | 自由布置 → 选中家具或宠物，拖动、缩放、旋转、调整前后层级 |
+| 自由摆放 | 布置空间（展厅为「自由布置」） → 选中家具或宠物，拖动、缩放、旋转、调整前后层级 |
 | 精细调整 | 方向键微调，Shift 加快；可开启对齐辅助；Delete 收起选中摆件，可撤销恢复 |
 | 撤销与重做 | 使用工具栏，或 Ctrl / Cmd + Z；重做为 Shift + Z 或 Ctrl / Cmd + Y |
 | 保存布置 | 点保存；关闭时有未保存改动，会询问保存、放弃或继续布置 |
 | 多窗口保存冲突 | 保留当前草稿；看过提示后，可再次确认保存这份布置 |
 | 留下小屋照片 | “留张照片”下载 PNG，包含当前房间、宠物和装扮；搭配预览会标明预览状态 |
+
+<table>
+<tr><td align="center">好友私聊</td><td align="center">随时换装</td></tr>
+<tr><td><img src="docs/screenshots/studio-chat-phone.png" alt="手机好友聊天，支持关系和宠物互动" width="310"></td><td><img src="docs/screenshots/studio-wardrobe-phone.png" alt="手机衣橱，试戴和余额状态清楚可见" width="310"></td></tr>
+</table>
+
+以上手机截图来自隔离演示账号。
 
 ### 网页换装，桌面也一起换
 
@@ -245,7 +252,7 @@ node setup.mjs --postoffice https://mofu-corner-dengjihui1.netlify.app
 1. 更新本地源码：退出托盘里的绒角，在项目目录运行 `git pull --ff-only`。
 2. 启动：`node setup.mjs --postoffice https://mofu-corner-dengjihui1.netlify.app`。
 3. 从桌面小窝打开「小邮局」，**登录与网页相同的绒角账号**。网页和桌面登录状态独立，首次需要分别登录。
-4. 网页「我的家 → 小衣橱」选择已拥有的饰品并穿戴，桌面通常约 **5 秒**同步；在桌面小邮局中换装会直接通知桌宠。
+4. 网页「我的家 → 穿搭」选择已拥有的饰品并穿戴，桌面通常约 **5 秒**同步；在桌面小邮局中换装会直接通知桌宠。
 
 头饰、围巾 / 领结、随身包可分别穿戴和摘下。桌宠的生肖与账号一致；退出账号后恢复本地自由选择。断网时保留最近同步的生肖和衣服，重连后自动更新。未保存的本地身量、小名草稿不会被一次网页换装清掉。
 
@@ -400,10 +407,10 @@ npm run package:source
 
 ## English
 
-**MofuCorner** is a local desktop companion with twelve plush zodiac characters, small continuous motions, expressions and simple games. Clone the repository and run `node setup.mjs` with Node.js 22.12+ and a WebGL2-capable desktop. Windows and macOS share the same source. Feishu / Lark window-edge companionship is available, with real-client macOS behavior still experimental. An optional self-hosted Post Office adds email-verified accounts, friend requests, private text chat and pet gestures. Its server requires Node.js 24.15+; no official public endpoint is bundled. Feishu / Lark messages, their account-status synchronization and AI conversation are not connected. No company app approval is needed for the default local companion.
+**MofuCorner** is a local desktop companion with twelve plush zodiac characters, small continuous motions, expressions and simple games. Clone the repository and run `node setup.mjs` with Node.js 22.12+ and a WebGL2-capable desktop. Windows and macOS share the same source. Feishu / Lark window-edge companionship is available, with real-client macOS behavior still experimental. The public Post Office supports handle/password accounts with recovery codes, friend requests, private text chat, rooms and wardrobe sync. The optional self-hosted email version requires Node.js 24.15+. Feishu / Lark messages, their account-status synchronization and AI conversation are not connected. No company app approval is needed for the default local companion.
 
 ## 致谢与许可
 
 受 [feishu-pet](https://github.com/HeiGeAi/feishu-pet) 的办公宠物方向启发。项目代码与角色独立制作，毛绒图像由生成式工具辅助创作；界面优化使用 [taste-skill](https://github.com/Leonxlnx/taste-skill)。
 
-项目使用 [MIT 许可证](LICENSE)，Three.js 遵循其 [MIT 许可](ui/vendor/THREE-LICENSE.txt)。绒角与飞书、Lark 及 Codex 官方无隶属关系。
+项目使用 [MIT 许可证](LICENSE)，Three.js 遵循其 [MIT 许可](ui/vendor/THREE-LICENSE.txt)。网页使用自托管的 Instrument Sans 字体，遵循 [SIL Open Font License](cloud/postoffice/public/assets/fonts/OFL-Instrument-Sans.txt)。绒角与飞书、Lark 及 Codex 官方无隶属关系。
