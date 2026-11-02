@@ -1,6 +1,6 @@
 import {defaultNode} from '../public/room-layout.mjs';
 import {CATALOG} from '../lib/home-catalog.mjs';
-import {HOME_STYLES} from '../public/home-styles.mjs';
+import {HOME_STYLES,styleLayout} from '../public/home-styles.mjs';
 import assert from 'node:assert/strict';
 import {createClient} from '@libsql/client';
 import {readFileSync,readdirSync} from 'node:fs';
@@ -14,6 +14,35 @@ async function user(id){await s.run('INSERT INTO users(id,handle,name,species,pa
 async function rejects(fn,status){await assert.rejects(fn,e=>e.status===status);}
 try{
  assert.equal(new Set(CATALOG.map(x=>x.id)).size,CATALOG.length);for(const item of CATALOG)assert.ok(Number.isInteger(item.price)&&item.price>=0);for(const room of HOME_STYLES)for(const [slot,id]of Object.entries(room.equipped))assert.equal(CATALOG.find(x=>x.id===id)?.slot,slot,'Every inspiration item must be a real catalog item in the correct slot');
+
+ // Preview layouts never unlock inventory. New themed items use the same prices,
+ // ownership gates and saved-room revision rules as the existing catalog.
+ const listener=await user('listener');
+ await s.run('UPDATE users SET species=? WHERE id=?','dog',listener.id);listener.species='dog';
+ const listening=HOME_STYLES.find(x=>x.id==='listening'),preview=styleLayout(listening,CATALOG);
+ const untouched=await homeState(s,listener,now);
+ await rejects(()=>homeRoute(s,listener,'/home/layout','POST',{nodes:preview,revision:untouched.layout.revision},now),403);
+ assert.deepEqual((await homeState(s,listener,now)).layout,untouched.layout);
+ assert.equal((await homeState(s,listener,now)).balance,20);
+ await s.run("INSERT INTO bean_ledger(user_id,event_key,reason,delta,day,created) VALUES(?,'test-funding','presence',400,?,?)",listener.id,homeDay(now),now);
+ let themed=await homeState(s,listener,now),spent=0;
+ for(const itemId of Object.values(listening.equipped)){
+  const item=CATALOG.find(x=>x.id===itemId);
+  themed=await homeRoute(s,listener,item.price?'/home/buy':'/home/equip','POST',{itemId,price:0},now);
+  spent+=item.price;assert.equal(themed.balance,420-spent);assert.equal(themed.equipped[item.slot],itemId);
+  if(item.price){assert.ok(themed.owned.includes(itemId));assert.equal((await homeRoute(s,listener,'/home/buy','POST',{itemId},now)).balance,themed.balance);}
+ }
+ assert.equal(spent,368);
+ themed=await homeRoute(s,listener,'/home/layout','POST',{nodes:preview,revision:themed.layout.revision},now);
+ assert.deepEqual(themed.layout.nodes,preview);
+ const saved=structuredClone(themed.layout);
+ for(const itemId of ['wear-knit-cap','wear-pinstripe','wear-canvas-bag']){
+  const item=CATALOG.find(x=>x.id===itemId);
+  themed=await homeRoute(s,listener,'/home/put-away','POST',{itemId},now);assert.equal(themed.equipped[item.slot],undefined);
+  themed=await homeRoute(s,listener,'/home/equip','POST',{itemId},now);assert.equal(themed.equipped[item.slot],itemId);
+  assert.deepEqual(themed.layout.nodes,saved.nodes,'wardrobe changes preserve saved theme placement');
+ }
+ assert.equal(themed.balance,52);assert.equal((await s.get('SELECT species FROM users WHERE id=?',listener.id)).species,'dog');
  const a=await user('alice'),b=await user('bob');
  await Promise.all(Array.from({length:5},()=>homeState(s,a,now)));assert.equal((await homeState(s,a,now)).balance,20,'welcome is once per account');
  await rejects(()=>homeRoute(s,a,'/home/equip','POST',{itemId:'light-moon'},now),403);

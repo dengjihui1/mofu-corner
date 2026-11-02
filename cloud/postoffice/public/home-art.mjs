@@ -1,11 +1,13 @@
 import {dressedAvatar,wearArt} from './pet-outfit.mjs';
 import {ROOM_SLOTS,WEAR_SLOTS,placeNode,defaultLayout} from './room-layout.mjs';
+import {listeningItemArt} from './listening-room-art.mjs';
 const ns='http://www.w3.org/2000/svg';let artSequence=0;
 const tint=(hex,amount)=>'#'+[1,3,5].map(i=>{const v=parseInt(hex.slice(i,i+2),16);return Math.round(v+((amount>0?255:0)-v)*Math.abs(amount)).toString(16).padStart(2,'0');}).join('');
 
 // Separate SVG furniture preserves purchase identity and the user's free placement.
 export function itemArt(item){
  if(WEAR_SLOTS.includes(item.slot))return wearArt(item);
+ const listening=listeningItemArt(item);if(listening)return listening;
  const c=/^#[a-f0-9]{6}$/i.test(item.color)?item.color:'#b8a58d',id='furniture-'+(++artSequence);
  const tone=`url(#${id}-tone)`,wood=`url(#${id}-wood)`,ceramic=`url(#${id}-ceramic)`,shade=tint(c,-.18),light=tint(c,.17);
  let body='';

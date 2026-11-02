@@ -213,9 +213,13 @@ node setup.mjs --postoffice https://mofu-corner-dengjihui1.netlify.app
 
 在小邮局登录后，点 **「我的家」**：在线陪伴和好友双向互动可以获得 **绒绒豆**，用来购买墙纸、软垫、小沙发、花草、灯具和聊天背景。首次入住赠送 20 豆，已拥有的装饰可反复换装；好友可从聊天菜单来串门。
 
-<img src="docs/screenshots/studio-home-live.jpg" alt="现代生活方式小屋：毛绒兔、软包椅、胡桃木家具和落地灯" width="1100">
+<img src="docs/screenshots/listening-room-live.jpg" alt="下班听一张：百叶窗暮光、唱片柜、低座椅和穿着新饰品的毛绒兔" width="1100">
 
-**[免登录体验四间小屋](https://mofu-corner-dengjihui1.netlify.app/showroom.html#berry/rabbit)**：奶油日光、莓果公寓、森林书房、蓝调夜色。可以切换生肖、点宠物打招呼、分享当前搭配；登录后可从「灵感」试摆。装饰和饰品共 37 款。小屋支持拖拽、缩放、旋转和保存；「穿搭」可试戴头饰、围巾和挎包。账号生肖在注册时选定，之后锁定。
+**[免登录体验五间小屋](https://mofu-corner-dengjihui1.netlify.app/showroom.html#listening/rabbit)**：下班听一张、奶油日光、莓果公寓、森林书房、蓝调夜色。装饰和饰品共 **48 款**。可以切换示例生肖、试摆、留张照片和分享搭配；登录后「灵感」使用自己的账号伙伴，生肖保持不变。
+
+**v0.9 · 下班听一张** 新增 8 件独立原创房间素材：百叶窗墙面、深胡桃木地板、平织毯、低座椅、唱片柜、杂志茶几、阅读灯与蓝调海报；配套炭灰针织帽 **28 豆**、细纹方巾 **18 豆**、原色帆布包 **26 豆**。全套合计 **368 豆**，其中房间物品 296 豆、穿搭 72 豆。唱机是房间装饰，当前不播放音乐。
+
+预览免费，喜欢的物品需逐件购买；可拖动、缩放、旋转和重置试摆，进入编辑不会跳回通用位置。试摆不覆盖已保存的家，分享链接保留主题和示例生肖，不保存临时摆放。
 
 [打开我的家](https://mofu-corner-dengjihui1.netlify.app/) · [奖励规则、摆放与部署说明](cloud/postoffice/README.md#我的小屋与绒绒豆)
 
@@ -231,7 +235,7 @@ node setup.mjs --postoffice https://mofu-corner-dengjihui1.netlify.app
 | --- | --- |
 | 挑选装饰与饰品 | 我的家 → 选物 / 穿搭；可按名字搜索，筛选已拥有或买得起的物品 |
 | 先试试看 | 选择物品预览，确认后再购买或穿戴；绒绒豆余额不足时不能购买 |
-| 自由摆放 | 布置空间（展厅为「自由布置」） → 选中家具或宠物，拖动、缩放、旋转、调整前后层级 |
+| 自由摆放 | 布置空间（展厅为「自由布置」） → 选中家具或宠物，拖动、缩放、旋转、调整前后层级；可重置摆放 |
 | 精细调整 | 方向键微调，Shift 加快；可开启对齐辅助；Delete 收起选中摆件，可撤销恢复 |
 | 撤销与重做 | 使用工具栏，或 Ctrl / Cmd + Z；重做为 Shift + Z 或 Ctrl / Cmd + Y |
 | 保存布置 | 点保存；关闭时有未保存改动，会询问保存、放弃或继续布置 |
@@ -247,9 +251,9 @@ node setup.mjs --postoffice https://mofu-corner-dengjihui1.netlify.app
 
 ### 网页换装，桌面也一起换
 
-<img src="docs/screenshots/desktop-wardrobe-zodiacs.png" alt="十二生肖实际桌面渲染：小雏菊、格纹围巾与随身小包" width="960">
+<img src="docs/screenshots/listening-outfit-zodiacs.png" alt="十二生肖实际桌面渲染：炭灰针织帽、细纹方巾和原色帆布包" width="960">
 
-1. 更新本地源码：退出托盘里的绒角，在项目目录运行 `git pull --ff-only`。
+1. 更新本地源码：退出托盘里的绒角，在项目目录运行 `git pull --ff-only`。**旧版桌宠须更新并重启，才能识别 v0.9 的三件新饰品。**
 2. 启动：`node setup.mjs --postoffice https://mofu-corner-dengjihui1.netlify.app`。
 3. 从桌面小窝打开「小邮局」，**登录与网页相同的绒角账号**。网页和桌面登录状态独立，首次需要分别登录。
 4. 网页「我的家 → 穿搭」选择已拥有的饰品并穿戴，桌面通常约 **5 秒**同步；在桌面小邮局中换装会直接通知桌宠。
@@ -390,7 +394,7 @@ npm run package:source
 ```
 
 - `docs:screenshots` 用临时配置启动隐藏 Electron 窗口，走真实 IPC 与界面操作，生成本文的小窝截图、生肖阵容和动作关键帧；不会修改你的 `.local/`。
-- `package:source` 输出 `dist/mofu-corner-0.7.0-source.zip` 与 SHA-256，不包含依赖、本机数据或历史设计稿。
+- `package:source` 输出 `dist/mofu-corner-0.9.0-source.zip` 与 SHA-256，不包含依赖、本机数据或历史设计稿。
 - 三平台检查与源码包可在 [GitHub Actions](https://github.com/dengjihui1/mofu-corner/actions) 查看。CI 的合成窗口定位不等同于真实飞书客户端人工验收。
 
 | 目录 | 内容 |

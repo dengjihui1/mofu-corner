@@ -1,7 +1,7 @@
 import {dressedAvatar} from './pet-outfit.mjs';
 import {createRoomEditor} from './home-editor.mjs';
 import {ROOM_SLOTS,WEAR_SLOTS,defaultLayout,defaultNode} from './room-layout.mjs';
-import {HOME_STYLES} from './home-styles.mjs';
+import {HOME_STYLES,styleLayout} from './home-styles.mjs';
 import {itemArt,roomScene} from './home-art.mjs';
 import {saveRoomPostcard} from './room-postcard.mjs';
 const el=(tag,cls,text)=>{const n=document.createElement(tag);if(cls)n.className=cls;if(text!==undefined)n.textContent=text;return n;};
@@ -22,17 +22,17 @@ export function createHomeUI({getMe,api,post,toast,onAppearance=()=>{}}){
  const $=id=>dialog.querySelector('#'+id),error=text=>{$('home-error').textContent=text||'';$('home-error').hidden=!text;};
  function isWorn(item){return ROOM_SLOTS.includes(item.slot)?Boolean(state.layout?.nodes[item.id]):state.equipped[item.slot]===item.id;}
  function fingerprint(nodes){return JSON.stringify(Object.keys(nodes).sort().map(id=>[id,Object.entries(nodes[id]).sort(([a],[b])=>a.localeCompare(b))]));}
- function dirty(){return !!editing&&fingerprint(editing.nodes)!==baseline;}
+ function dirty(){return !!editing&&!editing.preview&&fingerprint(editing.nodes)!==baseline;}
  function syncControls(){
   const on=!!editing,changed=dirty();
-  dialog.classList.toggle('is-designing',on);
+  dialog.classList.toggle('is-designing',on);dialog.querySelector('.home-editor-pane h3').textContent=editing?.preview?'搭配试摆 · 不保存':'调整布置';
   dialog.querySelector('.home-shop').inert=on||busy;
   $('home-scene').inert=busy;$('home-editor-tools').inert=busy;
-  $('home-design').hidden=on||!!visiting;$('home-design').disabled=busy||photoBusy;
+  $('home-design').hidden=on||!!visiting;$('home-design').disabled=busy||photoBusy;$('home-design').textContent=inspiration?'试摆布局':'布置空间';
   $('home-design-actions').hidden=!on;$('home-editor-tools').hidden=!on;
-  $('home-design-save').disabled=busy||!changed;
+  $('home-design-save').hidden=!!editing?.preview;$('home-design-save').disabled=busy||!changed;
   $('home-design-save').textContent=busy?'保存中…':conflict?'保存这份布置':'保存布置';
-  $('home-design-cancel').disabled=busy;$('home-design-reset').disabled=busy;
+  $('home-design-cancel').textContent=editing?.preview?'结束试摆':'取消';$('home-design-cancel').disabled=busy;$('home-design-reset').disabled=busy;
   dialog.querySelector('.home-close').disabled=busy;
   $('home-photo').disabled=busy||photoBusy||on||!$('home-scene').querySelector('.mofu-room');
   $('home-photo').textContent=photoBusy?'拍照中…':'留张照片';
@@ -50,7 +50,7 @@ export function createHomeUI({getMe,api,post,toast,onAppearance=()=>{}}){
   syncControls();leaveDialog.showModal();
  }
  async function saveLayout(){
-  if(!editing||busy)return false;
+  if(!editing||editing.preview||busy)return false;
   if(!dirty()){endEdit();return true;}
   const version=epoch,draft=editing;
   dataRevision++;busy=true;syncControls();error('');
@@ -76,14 +76,15 @@ export function createHomeUI({getMe,api,post,toast,onAppearance=()=>{}}){
  }
  $('home-design').onclick=async()=>{
   if(busy||photoBusy||visiting||!state||editing)return;
-  selected=null;inspiration=null;error('');
-  const scene=roomScene(state.equipped,state.catalog,getMe(),state.layout.nodes),designRevision=++sceneRevision;
-  editing={nodes:structuredClone(state.layout.nodes),revision:state.layout.revision};baseline=fingerprint(editing.nodes);conflict=false;
+  selected=null;error('');
+  const preview=inspiration,resetNodes=preview?styleLayout(preview,state.catalog):null,nodes=resetNodes||state.layout.nodes;
+  const scene=roomScene(preview?preview.equipped:state.equipped,state.catalog,getMe(),nodes),designRevision=++sceneRevision;
+  editing={nodes:structuredClone(nodes),revision:state.layout.revision,preview:!!preview};baseline=fingerprint(editing.nodes);conflict=false;
   editControls();await Promise.allSettled([...scene.querySelectorAll('img')].map(img=>img.decode()));
   if(!editing||!dialog.open||designRevision!==sceneRevision)return;
   $('home-scene').replaceChildren(scene);$('home-scene').setAttribute('aria-busy','false');
-  editor=createRoomEditor(scene,$('home-editor-tools'),editing.nodes,state.catalog,{onChange:syncControls});
-  $('home-caption').textContent='';$('home-preview-reset').hidden=true;syncControls();
+  editor=createRoomEditor(scene,$('home-editor-tools'),editing.nodes,state.catalog,{onChange:syncControls,resetNodes});
+  $('home-caption').textContent=preview?'搭配试摆 · 不保存':'';$('home-preview-reset').hidden=true;syncControls();
  };
  $('home-design-cancel').onclick=()=>requestLeave(()=>{});
  $('home-design-reset').onclick=()=>{if(!busy){editor?.reset();syncControls();}};
@@ -103,12 +104,12 @@ export function createHomeUI({getMe,api,post,toast,onAppearance=()=>{}}){
  };
  function applyTheme(){const pane=document.querySelector('.letter-pane');if(pane)pane.dataset.homeTheme=state?.equipped.chat||'chat-paper';}
  function updateWallet(){if(state&&getMe()){const user=getMe();user.outfit=Object.fromEntries(WEAR_SLOTS.filter(slot=>state.equipped[slot]).map(slot=>[slot,state.equipped[slot]]));const key=JSON.stringify([user.id,user.species,user.outfit]);if(key!==portraitKey){portraitKey=key;onAppearance();const image=dressedAvatar(user.species,46,user.outfit);Promise.allSettled([...image.querySelectorAll('img')].map(i=>i.decode())).then(()=>{if(key===portraitKey&&getMe()?.id===user.id)document.getElementById('me-avatar')?.replaceChildren(image);});}}launcher.textContent='我的家'+(state?' · '+state.balance+' 豆':'');$('home-wallet').querySelector('b').textContent=state?.balance??'—';applyTheme();}
- function renderScene(){if(!state&&!visiting)return;const info=visiting||{user:getMe(),catalog:state.catalog,equipped:state.equipped,layout:state.layout};const equipped={...info.equipped,...(!visiting&&inspiration?inspiration.equipped:{})};if(selected&&!visiting)equipped[selected.slot]=selected.id;const nodes=structuredClone(inspiration?defaultLayout(inspiration.equipped,info.catalog):info.layout?.nodes||defaultLayout(info.equipped,info.catalog));if(selected&&ROOM_SLOTS.includes(selected.slot)&&!nodes[selected.id])nodes[selected.id]=defaultNode(selected.slot);const scene=roomScene(equipped,info.catalog,info.user,nodes),revision=++sceneRevision;const host=$('home-scene');host.setAttribute('aria-busy','true');Promise.allSettled([...scene.querySelectorAll('img')].map(img=>img.decode())).then(()=>{if(revision!==sceneRevision||!dialog.open)return;host.replaceChildren(scene);host.setAttribute('aria-busy','false');syncControls();});$('home-title').textContent=info.user.name+'的家';$('home-caption').textContent=visiting?'':inspiration?'搭配预览 · '+inspiration.name+' · 未购买不保存':selected?(WEAR_SLOTS.includes(selected.slot)?'试戴 · ':selected.slot==='chat'?'预览 · ':'试摆 · ')+selected.name:'';$('home-preview-reset').hidden=(!selected&&!inspiration)||!!visiting;$('home-preview-reset').textContent=selected&&WEAR_SLOTS.includes(selected.slot)?'退出试戴':'退出试摆';}
+ function renderScene(){if(!state&&!visiting)return;const info=visiting||{user:getMe(),catalog:state.catalog,equipped:state.equipped,layout:state.layout};const equipped={...(!visiting&&inspiration?inspiration.equipped:info.equipped)};if(selected&&!visiting)equipped[selected.slot]=selected.id;const nodes=structuredClone(inspiration?styleLayout(inspiration,info.catalog):info.layout?.nodes||defaultLayout(info.equipped,info.catalog));if(selected&&ROOM_SLOTS.includes(selected.slot)&&!nodes[selected.id])nodes[selected.id]=defaultNode(selected.slot);const scene=roomScene(equipped,info.catalog,info.user,nodes),revision=++sceneRevision;const host=$('home-scene');host.setAttribute('aria-busy','true');Promise.allSettled([...scene.querySelectorAll('img')].map(img=>img.decode())).then(()=>{if(revision!==sceneRevision||!dialog.open)return;host.replaceChildren(scene);host.setAttribute('aria-busy','false');syncControls();});$('home-title').textContent=info.user.name+'的家';$('home-caption').textContent=visiting?'':inspiration?'搭配预览 · '+inspiration.name+' · 未购买不保存':selected?(WEAR_SLOTS.includes(selected.slot)?'试戴 · ':selected.slot==='chat'?'预览 · ':'试摆 · ')+selected.name:'';$('home-preview-reset').hidden=(!selected&&!inspiration)||!!visiting;$('home-preview-reset').textContent=selected&&WEAR_SLOTS.includes(selected.slot)?'退出试戴':'退出试摆';}
  function render({scene=true}={}){const priorFocus=document.activeElement,focusLabel=priorFocus?.getAttribute('aria-label')||priorFocus?.textContent;const priorProduct=priorFocus?.dataset?.productId;const priorScroll=$('home-products').scrollTop;updateWallet();syncControls();if(!dialog.open||editing||!state&&!visiting)return;if(scene)renderScene();const guest=!!visiting;dialog.classList.toggle('is-visiting',guest);$('home-design').hidden=guest; if(guest)return;
   for(const b of dialog.querySelectorAll('[data-home-tab]'))b.setAttribute('aria-pressed',String(b.dataset.homeTab===tab));
   $('home-categories').replaceChildren();for(const [id,name]of Object.entries(slots)){if(tab==='wardrobe'&&id!=='all'&&!WEAR_SLOTS.includes(id))continue;const b=el('button','',name);b.type='button';b.setAttribute('aria-pressed',String(category===id));b.onclick=()=>{category=id;$('home-products').scrollTop=0;render({scene:false});};$('home-categories').append(b);}
   const list=$('home-products');list.replaceChildren();list.classList.toggle('is-inspiration',tab==='inspiration');$('home-categories').hidden=tab==='inspiration';$('home-browse').hidden=tab==='inspiration';$('home-ownership').hidden=tab==='owned';
-  if(tab==='inspiration')for(const room of HOME_STYLES){const b=el('button','home-inspiration');b.type='button';b.setAttribute('aria-label','试摆'+room.name);const words=el('div');words.append(el('b','',room.name),el('span','','整间试摆 · 不扣豆'));b.append(roomScene(room.equipped,state.catalog,{name:room.name,species:getMe().species}),words);b.onclick=()=>{inspiration=room;selected=null;tab='shop';category='all';render();};list.append(b);}
+  if(tab==='inspiration')for(const room of HOME_STYLES){const b=el('button','home-inspiration');b.type='button';b.setAttribute('aria-label','试摆'+room.name);const words=el('div');words.append(el('b','',room.name),el('span','','整间试摆 · 不扣豆'));b.append(roomScene(room.equipped,state.catalog,{name:room.name,species:getMe().species},styleLayout(room,state.catalog)),words);b.onclick=()=>{inspiration=room;selected=null;tab='shop';category='all';render();};list.append(b);}
   const items=tab==='inspiration'?[]:state.catalog.filter(x=>(tab==='shop'||tab==='wardrobe'||state.owned.includes(x.id))&&(tab!=='wardrobe'||WEAR_SLOTS.includes(x.slot))&&(category==='all'||x.slot===category)&&(!inspiration||Object.values(inspiration.equipped).includes(x.id))&&(!query||[x.name,slots[x.slot]].join(' ').toLocaleLowerCase().includes(query.toLocaleLowerCase()))&&(tab==='owned'||ownership==='all'||ownership==='owned'&&state.owned.includes(x.id)||ownership==='affordable'&&!state.owned.includes(x.id)&&x.price<=state.balance));
   $('home-result-count').textContent=tab==='inspiration'?'':items.length+' 件';
   $('home-clear-filters').hidden=tab==='inspiration'||(!query&&ownership==='all'&&category==='all');
@@ -126,7 +127,7 @@ export function createHomeUI({getMe,api,post,toast,onAppearance=()=>{}}){
    b.append(itemArt(item),el('b','',item.name),el('span','product-price'+(preview?' is-preview':''),label));
    b.onclick=()=>{selected=item;render();};list.append(b);
   }
-  const detail=$('home-selection');detail.replaceChildren();detail.classList.toggle('has-wear-preview',!!selected&&WEAR_SLOTS.includes(selected.slot));if(selected&&WEAR_SLOTS.includes(selected.slot)){const portrait=el('div','home-wear-preview');portrait.setAttribute('aria-label','当前试戴效果');portrait.append(dressedAvatar(getMe().species,76,{...state.equipped,[selected.slot]:selected.id}));detail.append(portrait);}
+  const detail=$('home-selection');detail.replaceChildren();detail.classList.toggle('has-wear-preview',!!selected&&WEAR_SLOTS.includes(selected.slot));if(selected&&WEAR_SLOTS.includes(selected.slot)){const portrait=el('div','home-wear-preview');portrait.setAttribute('aria-label','当前试戴效果');portrait.append(dressedAvatar(getMe().species,76,{...(inspiration?inspiration.equipped:state.equipped),[selected.slot]:selected.id}));detail.append(portrait);}
   if(selected){const owned=state.owned.includes(selected.id),worn=isWorn(selected);const line=el('div','selection-copy');line.append(el('strong','',selected.name),el('span','',worn?(WEAR_SLOTS.includes(selected.slot)?'已佩戴':selected.slot==='chat'?'使用中':'已摆好'):owned?'已拥有':WEAR_SLOTS.includes(selected.slot)?'试戴中 · 尚未购买':selected.slot==='chat'?'预览中 · 尚未购买':'试摆中 · 尚未购买'));detail.append(line);if(selected.slot==='chat'){const sample=el('div','home-chat-preview');sample.style.background=selected.color;sample.setAttribute('aria-label','聊天背景预览');sample.append(el('span','','今天也来坐坐？'));detail.append(sample);}
    const b=el('button','primary',busy?'正在收好…':worn?'正在使用':owned?(WEAR_SLOTS.includes(selected.slot)?'戴上这件':selected.slot==='chat'?'使用背景':'摆进小屋'):state.balance<selected.price?'还差 '+(selected.price-state.balance)+' 豆':'买下并使用 · '+selected.price+' 豆');b.type='button';b.disabled=busy||worn||(!owned&&state.balance<selected.price);b.onclick=()=>act(owned?'/home/equip':'/home/buy',{itemId:selected.id},owned?(WEAR_SLOTS.includes(selected.slot)?'戴好啦。':'已经摆好了。'):'新装饰到家啦。');detail.append(b);
    if(worn&&[...ROOM_SLOTS,...WEAR_SLOTS].includes(selected.slot)){const away=el('button','home-put-away',WEAR_SLOTS.includes(selected.slot)?'摘下收好':'收进收藏');away.type='button';away.disabled=busy;away.onclick=()=>act('/home/put-away',{itemId:selected.id},'已收好，随时可以再摆。');detail.append(away);}

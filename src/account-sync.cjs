@@ -1,6 +1,6 @@
 // The bridge accepts only known wearable IDs, never markup, asset URLs or executable recipes.
 const SPECIES = new Set(['rat','ox','tiger','rabbit','dragon','snake','horse','sheep','monkey','rooster','dog','pig','otter']);
-const WEARABLES = Object.freeze({headwear:new Set(['wear-bow','wear-daisy','wear-beret']),neckwear:new Set(['wear-bandana','wear-bowtie']),carry:new Set(['wear-satchel'])});
+const WEARABLES = Object.freeze({headwear:new Set(['wear-bow','wear-daisy','wear-beret','wear-knit-cap']),neckwear:new Set(['wear-bandana','wear-bowtie','wear-pinstripe']),carry:new Set(['wear-satchel','wear-canvas-bag'])});
 function accountIdentity(value){
  if(value===null)return null;
  if(!value||typeof value!=='object'||Array.isArray(value)||typeof value.id!=='string'||!/^[a-zA-Z0-9_-]{1,80}$/.test(value.id)||!SPECIES.has(value.species))return undefined;

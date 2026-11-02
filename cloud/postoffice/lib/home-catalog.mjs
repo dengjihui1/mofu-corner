@@ -32,7 +32,15 @@ export const CATALOG = [
  {id:'shelf-books',slot:'shelf',name:'胡桃木开放架',price:36,color:'#947557'},
  {id:'table-tea',slot:'table',name:'双杯圆茶几',price:40,color:'#947557'},
  {id:'chat-berry',slot:'chat',name:'灰莓信纸',price:24,color:'#f0e9e8'},
- {id:'chat-sky',slot:'chat',name:'蓝灰信纸',price:24,color:'#ebf0ee'}
+ {id:'chat-sky',slot:'chat',name:'蓝灰信纸',price:24,color:'#ebf0ee'},
+ {id:'wall-listening',slot:'wall',name:'暮色百叶窗',price:28,color:'#d8d2c6'},
+ {id:'floor-walnut',slot:'floor',name:'深胡桃木地板',price:24,color:'#886247'},
+ {id:'rug-woven',slot:'rug',name:'原色平织毯',price:26,color:'#c3b9a4'},
+ {id:'seat-lounge',slot:'seat',name:'炭灰低座椅',price:56,color:'#3e4446'},
+ {id:'shelf-records',slot:'shelf',name:'胡桃木唱片柜',price:64,color:'#79543e'},
+ {id:'table-magazines',slot:'table',name:'杂志矮茶几',price:38,color:'#825b43'},
+ {id:'light-reading',slot:'light',name:'黄铜阅读灯',price:42,color:'#c2a579'},
+ {id:'art-blue-note',slot:'art',name:'蓝调唱片海报',price:18,color:'#274fb4'}
 ];
 export const DEFAULT_HOME={wall:'wall-cream',floor:'floor-oak',rug:'rug-oat',chat:'chat-paper'};
 export const HOME_RULES={welcome:20,minutesPerReward:10,beansPerReward:2,presenceCap:36,socialCap:12,chatReward:3,gestureReward:1,timezone:'Asia/Shanghai'};

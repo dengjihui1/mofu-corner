@@ -11,6 +11,7 @@ app.disableHardwareAcceleration();
  const work=join(root,'.local/home-ui-review');await mkdir(work,{recursive:true});
  app.setPath('userData',await mkdtemp(join(work,'electron-')));await app.whenReady();
  const {CATALOG,DEFAULT_HOME,HOME_RULES}=await import(pathToFileURL(join(root,'cloud/postoffice/lib/home-catalog.mjs')));
+ const {HOME_STYLES,styleLayout}=await import(pathToFileURL(join(publicRoot,'home-styles.mjs')));
  const {defaultLayout}=await import(pathToFileURL(join(publicRoot,'room-layout.mjs')));
  const initial={catalog:CATALOG,owned:CATALOG.filter(x=>x.price===0).map(x=>x.id),equipped:{...DEFAULT_HOME},layout:{revision:1,nodes:defaultLayout(DEFAULT_HOME,CATALOG)},balance:20,today:{minutes:0,presence:0,social:0},rules:HOME_RULES,ledger:[]};
  const html=`<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">${['postoffice','postoffice-home','home-cozy','home-editor','studio-base','studio-home'].map(x=>'<link rel="stylesheet" href="/'+x+'.css">').join('')}<title>小屋交互验收</title></head><body><header class="post-header"><h1>绒角</h1><span id="connection">在线</span></header><div id="me-avatar"></div><main class="letter-pane"></main><script type="module">
@@ -34,7 +35,7 @@ app.disableHardwareAcceleration();
  window.home=createHomeUI({getMe:()=>me,api,post,toast:text=>fixture.toast=text,onAppearance:()=>fixture.appearance=(fixture.appearance||0)+1});
  await home.open();window.ready=true;
  </script></body></html>`;
- server=createServer(async(req,res)=>{try{if(req.url==='/__home-test'){res.writeHead(200,{'Content-Type':'text/html; charset=utf-8'});res.end(html);return;}const file=resolve(publicRoot,'.'+decodeURIComponent(new URL(req.url,'http://127.0.0.1').pathname));if(!file.startsWith(publicRoot+sep)){res.writeHead(404);res.end();return;}const body=await readFile(file),mime={'.mjs':'text/javascript','.js':'text/javascript','.css':'text/css','.svg':'image/svg+xml','.png':'image/png','.woff2':'font/woff2'}[extname(file)]||'application/octet-stream';res.writeHead(200,{'Content-Type':mime});res.end(body);}catch{res.writeHead(404);res.end();}});
+ server=createServer(async(req,res)=>{try{if(req.url==='/home-collection.json'){res.writeHead(200,{'Content-Type':'application/json'});res.end(JSON.stringify({catalog:CATALOG}));return;}if(req.url==='/__home-test'){res.writeHead(200,{'Content-Type':'text/html; charset=utf-8'});res.end(html);return;}const file=resolve(publicRoot,'.'+decodeURIComponent(new URL(req.url,'http://127.0.0.1').pathname));if(!file.startsWith(publicRoot+sep)){res.writeHead(404);res.end();return;}const body=await readFile(file),mime={'.html':'text/html; charset=utf-8','.mjs':'text/javascript','.js':'text/javascript','.css':'text/css','.svg':'image/svg+xml','.png':'image/png','.woff2':'font/woff2'}[extname(file)]||'application/octet-stream';res.writeHead(200,{'Content-Type':mime});res.end(body);}catch{res.writeHead(404);res.end();}});
  await new Promise(r=>server.listen(0,'127.0.0.1',r));
  win=new BrowserWindow({show:false,width:1240,height:900,webPreferences:{contextIsolation:true,nodeIntegration:false,sandbox:true,backgroundThrottling:false,offscreen:true}});
  win.webContents.on('console-message',e=>{if(e.level==='error'||e.level===3){errors.push(e.message);console.error('RENDERER',e.message);}});
@@ -54,7 +55,7 @@ app.disableHardwareAcceleration();
  await change('#home-search','不存在的家具','input');assert.ok(await run(()=>document.querySelector('.home-empty').textContent.includes('没有找到')));
  await click('#home-clear-filters');assert.equal(await run(()=>document.querySelectorAll('.home-product').length),CATALOG.length);checks.push('Search, empty state and clearing filters');
  await click('[data-home-tab="wardrobe"]');await change('#home-ownership','owned');assert.equal(await run(()=>document.querySelectorAll('.home-product').length),2);
- await change('#home-ownership','affordable');assert.equal(await run(()=>document.querySelectorAll('.home-product').length),2);
+ await change('#home-ownership','affordable');assert.equal(await run(()=>document.querySelectorAll('.home-product').length),CATALOG.filter(x=>['headwear','neckwear','carry'].includes(x.slot)&&x.price>0&&x.price<=20).length);
  await click('[data-product-id="wear-daisy"]');assert.equal(await run(()=>fixture.calls.filter(x=>x.path==='/home/buy').length),0);
  assert.ok(await run(()=>document.querySelector('[data-product-id="wear-daisy"]').textContent.includes('试戴中')));
  assert.equal(await run(()=>me.outfit.headwear),undefined);
@@ -94,6 +95,59 @@ app.disableHardwareAcceleration();
 
  for(const width of [768,390]){win.setContentSize(width,844);await wait(w=>Math.abs(innerWidth-w)<=2,width);await run(()=>document.querySelector('.home-shop').scrollIntoView({block:'start'}));assert.equal(await run(()=>document.querySelector('.home-dialog').scrollWidth<=document.querySelector('.home-dialog').clientWidth+1),true);if(width===390){assert.ok(await run(()=>document.querySelector('.home-search').getBoundingClientRect().height>=44));assert.ok(await run(()=>document.querySelector('#home-ownership').getBoundingClientRect().height>=44));assert.equal(await run(()=>getComputedStyle(document.querySelector('.home-wear-preview')).display),'grid');assert.equal(await run(()=>document.querySelector('#home-products').scrollHeight<=document.querySelector('#home-products').clientHeight+1),true);assert.ok(await run(()=>document.querySelector('#home-selection').getBoundingClientRect().bottom<=innerHeight+1));assert.ok(await run(()=>document.querySelector('.home-wear-preview [data-item="wear-bowtie"]')));await shot('home-shop-mobile');}}
  checks.push('Tablet and 390px phone have no horizontal overflow; search and filter touch targets are 44px');
- assert.deepEqual(errors,[]);await run(()=>home.stop());console.log(JSON.stringify({homeUI:true,checks,screenshots:work}));
+
+ // A theme stays a non-spending preview, including when its layout is edited.
+ win.setContentSize(1240,900);await run(()=>{me.species='dog';fixture.state.layout.nodes.pet.x=41;return home.open();});
+ await wait(()=>document.querySelector('#home-scene').getAttribute('aria-busy')==='false');
+ const persisted=await run(()=>structuredClone(fixture.state)),dogImage=await run(()=>document.querySelector('#home-scene .room-pet img').src);
+ const placements=()=>Object.fromEntries([...document.querySelectorAll('#home-scene [data-node]')].map(n=>[n.dataset.node,[n.style.left,n.style.top,n.style.transform,n.style.zIndex]]));
+ const ownPositions=await run(placements);await edit();assert.deepEqual(await run(placements),ownPositions);await click('#home-design-cancel');
+ await click('[data-home-tab="inspiration"]');assert.equal(await run(()=>document.querySelectorAll('.home-inspiration').length),5);
+ await click('.home-inspiration');await wait(()=>document.querySelector('#home-scene').getAttribute('aria-busy')==='false');
+ const themePositions=await run(placements),expected=styleLayout(HOME_STYLES[0],CATALOG);
+ for(const [id,node]of Object.entries(expected)){assert.equal(themePositions[id][0],node.x+'%');assert.equal(themePositions[id][1],node.y+'%');}
+ assert.equal(await run(()=>document.querySelector('#home-scene .room-pet img').src),dogImage);
+ assert.equal(await run(()=>document.querySelectorAll('#home-scene .pet-wear').length),3);
+ await shot('home-listening-preview');
+ const writesBefore=await run(()=>fixture.calls.length);await edit();assert.deepEqual(await run(placements),themePositions);
+ assert.equal(await run(()=>document.querySelector('#home-design-save').hidden),true);await move();assert.notDeepEqual(await run(placements),themePositions);
+ assert.equal(await unloadBlocked(),false);await click('#home-design-reset');assert.deepEqual(await run(placements),themePositions);
+ await click('#home-design-cancel');assert.equal(await run(()=>fixture.calls.length),writesBefore);assert.deepEqual(await run(()=>fixture.state),persisted);
+ assert.equal(await run(()=>me.species),'dog');
+ await click('#home-preview-reset');await wait(()=>document.querySelector('#home-scene').getAttribute('aria-busy')==='false');assert.deepEqual(await run(placements),ownPositions);
+ checks.push('Five inspirations preserve saved placement and account species; theme editing and reset match the preview without purchases or saves');
+ // Seed only the test wallet, then exercise explicit new-wardrobe purchases.
+ await run(()=>{fixture.state.balance=120;return home.refresh();});await wait(()=>document.querySelector('#home-wallet b').textContent==='120');await click('[data-home-tab="wardrobe"]');
+ const savedNodes=await run(()=>structuredClone(fixture.state.layout.nodes));
+ for(const id of ['wear-knit-cap','wear-pinstripe','wear-canvas-bag']){
+  await click('[data-product-id="'+id+'"]');await wait(item=>!!document.querySelector('#home-scene [data-item="'+item+'"]'),id);
+  const before=await run(()=>fixture.state.balance);await click('#home-selection .primary');
+  await wait(item=>Object.values(me.outfit).includes(item),id);
+  assert.equal(await run(()=>fixture.state.balance),before-CATALOG.find(x=>x.id===id).price);assert.deepEqual(await run(()=>fixture.state.layout.nodes),savedNodes);
+ }
+ assert.equal(await run(()=>fixture.state.balance),48);assert.equal(await run(()=>me.species),'dog');
+ assert.deepEqual(await run(()=>Object.values(me.outfit).sort()),['wear-canvas-bag','wear-knit-cap','wear-pinstripe']);
+ checks.push('New headwear, scarf and bag preview before explicit purchase; wardrobe/identity update without changing saved furniture or species');
+ await run(()=>home.stop());
+ // Public showroom uses the same layout in display, edit, reset and shared hashes.
+ await win.loadURL(`http://127.0.0.1:${server.address().port}/showroom.html`);
+ await wait(()=>document.querySelector('#showroom-scene .mofu-room')&&document.querySelector('#showroom-scene').getAttribute('aria-busy')==='false');
+ const showroomPositions=()=>Object.fromEntries([...document.querySelectorAll('#showroom-scene [data-node]')].map(n=>[n.dataset.node,[n.style.left,n.style.top,n.style.transform,n.style.zIndex]]));
+ assert.equal(await run(()=>document.querySelector('#room-name').textContent),'下班听一张');
+ assert.equal(await run(()=>document.querySelector('#room-price').textContent),'368 绒绒豆');
+ const themeShowroom=await run(showroomPositions);assert.deepEqual(themeShowroom,themePositions);
+ await shot('showroom-listening-desktop');
+ for(const id of ['wear-knit-cap','wear-pinstripe','wear-canvas-bag']){await click('[data-item-id="'+id+'"]');assert.ok(await run(item=>document.querySelector('.room-pet.is-highlighted [data-item="'+item+'"]'),id));assert.notEqual(await run(()=>getComputedStyle(document.querySelector('.room-pet.is-highlighted')).outlineStyle),'none');}
+ await click('#try-design');await wait(()=>!!document.querySelector('#showroom-scene .is-editable'));assert.deepEqual(await run(showroomPositions),themeShowroom);
+ await run(()=>document.querySelector('#showroom-scene [data-node="pet"]').dispatchEvent(new KeyboardEvent('keydown',{key:'ArrowRight',bubbles:true})));
+ await click('#showroom-design-reset');assert.deepEqual(await run(showroomPositions),themeShowroom);await click('#try-design');
+ await run(()=>{Object.defineProperty(navigator,'clipboard',{configurable:true,value:{writeText:async text=>{window.copied=text;}}});});
+ await click('#share-room');assert.equal(new URL(await run(()=>window.copied)).hash,'#listening/rabbit');
+ for(const room of HOME_STYLES.slice(1)){await run(hash=>{location.hash=hash;},room.id+'/'+room.species);await wait(name=>document.querySelector('#room-name').textContent===name&&document.querySelector('#showroom-scene').getAttribute('aria-busy')==='false',room.name);assert.equal(await run(()=>document.querySelector('#room-pet').value),room.species);}
+ await run(()=>{location.hash='listening/rabbit';});await wait(()=>document.querySelector('#room-name').textContent==='下班听一张'&&document.querySelector('#showroom-scene').getAttribute('aria-busy')==='false');
+ win.setContentSize(390,844);await wait(()=>innerWidth===390);assert.ok(await run(()=>document.documentElement.scrollWidth<=innerWidth+1));await run(()=>window.scrollTo(0,0));await shot('showroom-listening-phone');await run(()=>document.querySelector('[data-item-id="wear-knit-cap"]').scrollIntoView({block:'center'}));await click('[data-item-id="wear-knit-cap"]');await wait(()=>{const pet=document.querySelector('.room-pet.is-highlighted'),r=pet?.getBoundingClientRect();return r&&r.top>=0&&r.bottom<=innerHeight;});
+ checks.push('Public default theme totals 368 beans; all three clothing cards locate real worn layers, editor/reset stay aligned, and all legacy share hashes remain valid');
+ assert.deepEqual(errors,[]);console.log(JSON.stringify({homeUI:true,checks,screenshots:work}));
+
  win.destroy();server.close();app.exit(0);
 })().catch(e=>{console.error(e.stack);win?.destroy();server?.close();app.exit(1);});

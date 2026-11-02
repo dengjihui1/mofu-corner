@@ -66,11 +66,11 @@ app.whenReady().then(async()=>{try{
  pushAccount({...account,outfit:{headwear:'wear-bow'}});
  await wait(v=>painted(v)&&same(v,initial),'restore initial rabbit bow');
  checks.push('initial-accessories-were-painted-in-static-mode');
- pushAccount({...account,outfit:{headwear:'wear-beret',neckwear:'wear-bandana',carry:'wear-satchel'}});
+ pushAccount({...account,outfit:{headwear:'wear-knit-cap',neckwear:'wear-pinstripe',carry:'wear-canvas-bag'}});
  const fullOutfit=await wait(v=>painted(v)&&changed(v,initial)&&changed(v,rabbitBare),'full rabbit wardrobe');
  checks.push('all-wearable-slots-reach-main-and-header-canvases');
  pushAccount({...account,outfit:{headwear:'wear-daisy'}});
- pushAccount({...account,outfit:{headwear:'wear-beret',neckwear:'wear-bandana',carry:'wear-satchel'}});
+ pushAccount({...account,outfit:{headwear:'wear-knit-cap',neckwear:'wear-pinstripe',carry:'wear-canvas-bag'}});
  await pause(100);await wait(v=>painted(v)&&same(v,fullOutfit),'rapid wardrobe return');
  checks.push('rapid-outfit-return-keeps-latest-render-in-both-portraits');
 

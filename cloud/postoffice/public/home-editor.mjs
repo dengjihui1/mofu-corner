@@ -1,6 +1,6 @@
 import {GEOMETRY,placeNode,defaultNode,alignNode} from './room-layout.mjs';
 const clone=value=>structuredClone(value);
-export function createRoomEditor(stage,tools,nodes,catalog,{onChange=()=>{}}={}){
+export function createRoomEditor(stage,tools,nodes,catalog,{onChange=()=>{},resetNodes=null}={}){
  let selected='pet',history=[],future=[],drag=null,adjustment=null,disposed=false,snap=true,lastValue=JSON.stringify(nodes);
  const view=stage.ownerDocument.defaultView;
  stage.setAttribute('role','group');stage.classList.add('is-editable');tools.classList.add('room-editor-tools');
@@ -43,5 +43,5 @@ export function createRoomEditor(stage,tools,nodes,catalog,{onChange=()=>{}}={})
  tools.querySelector('[data-edit=remove]').onclick=remove;
  tools.querySelector('[data-edit=snap]').onclick=e=>{snap=!snap;e.currentTarget.setAttribute('aria-pressed',String(snap));if(!snap)showGuides();};
  paint();controls();
- return {reset(){finishDrag();commit(()=>{for(const [id,el]of elements)if(nodes[id])nodes[id]=defaultNode(el.dataset.slot);});},destroy(){finishDrag();finishAdjustment();disposed=true;view.removeEventListener('blur',cancelOnBlur);stage.removeEventListener('keydown',shortcuts);tools.removeEventListener('keydown',shortcuts);for(const el of elements.values()){el.onpointerdown=el.onpointermove=el.onpointerup=el.onpointercancel=el.onlostpointercapture=el.onkeydown=null;el.classList.remove('is-selected','is-dragging');}guides.forEach(el=>el.remove());stage.classList.remove('is-editable');tools.classList.remove('room-editor-tools');tools.replaceChildren();}};
+ return {reset(){finishDrag();commit(()=>{for(const [id,el]of elements)if(nodes[id])nodes[id]=resetNodes?.[id]?clone(resetNodes[id]):defaultNode(el.dataset.slot);});},destroy(){finishDrag();finishAdjustment();disposed=true;view.removeEventListener('blur',cancelOnBlur);stage.removeEventListener('keydown',shortcuts);tools.removeEventListener('keydown',shortcuts);for(const el of elements.values()){el.onpointerdown=el.onpointermove=el.onpointerup=el.onpointercancel=el.onlostpointercapture=el.onkeydown=null;el.classList.remove('is-selected','is-dragging');}guides.forEach(el=>el.remove());stage.classList.remove('is-editable');tools.classList.remove('room-editor-tools');tools.replaceChildren();}};
 }

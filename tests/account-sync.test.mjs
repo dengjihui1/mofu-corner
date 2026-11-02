@@ -8,9 +8,11 @@ import {EventEmitter} from 'node:events';
 import vm from 'node:vm';
 import {createCharacter} from '../src/character.mjs';
 import sync from '../src/account-sync.cjs';
+import {WEARABLES} from '../cloud/postoffice/public/wear-catalog.mjs';
 const require=createRequire(import.meta.url),{accountIdentity,acceptIdentity,accountCharacter,canSaveCharacter}=sync;
 const rabbit={id:'account-a',species:'rabbit',outfit:{headwear:'wear-bow',neckwear:'wear-bandana'}};
 test('account identity only accepts known wearable IDs in their actual slots',()=>{
+ for(const item of WEARABLES){const identity={...rabbit,outfit:{[item.slot]:item.id}};assert.deepEqual(accountIdentity(identity),identity,`${item.id} reaches the desktop bridge`);}
  assert.deepEqual(accountIdentity(rabbit),rabbit);assert.equal(accountIdentity(null),null);
  for(const value of [{...rabbit,species:'unknown'},{...rabbit,id:'../account'}, {...rabbit,outfit:{headwear:'https://evil.test/a.svg'}},{...rabbit,outfit:{headwear:'wear-satchel'}},{...rabbit,outfit:{__proto__:'ignored',script:'alert(1)'}}, {...rabbit,outfit:[]}, {...rabbit,outfit:null}])assert.equal(accountIdentity(value),undefined);
  assert.deepEqual(accountIdentity({...rabbit,extra:'discard'}),rabbit);
