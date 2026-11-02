@@ -1,13 +1,15 @@
 import {dressedAvatar,wearArt} from './pet-outfit.mjs';
 import {ROOM_SLOTS,WEAR_SLOTS,placeNode,defaultLayout} from './room-layout.mjs';
 import {listeningItemArt} from './listening-room-art.mjs';
+import {daylightItemArt} from './daylight-room-art.mjs';
+import {quietItemArt} from './quiet-room-art.mjs';
 const ns='http://www.w3.org/2000/svg';let artSequence=0;
 const tint=(hex,amount)=>'#'+[1,3,5].map(i=>{const v=parseInt(hex.slice(i,i+2),16);return Math.round(v+((amount>0?255:0)-v)*Math.abs(amount)).toString(16).padStart(2,'0');}).join('');
 
 // Separate SVG furniture preserves purchase identity and the user's free placement.
 export function itemArt(item){
  if(WEAR_SLOTS.includes(item.slot))return wearArt(item);
- const listening=listeningItemArt(item);if(listening)return listening;
+ const custom=listeningItemArt(item)||daylightItemArt(item)||quietItemArt(item);if(custom)return custom;
  const c=/^#[a-f0-9]{6}$/i.test(item.color)?item.color:'#b8a58d',id='furniture-'+(++artSequence);
  const tone=`url(#${id}-tone)`,wood=`url(#${id}-wood)`,ceramic=`url(#${id}-ceramic)`,shade=tint(c,-.18),light=tint(c,.17);
  let body='';
@@ -61,7 +63,7 @@ export function itemArt(item){
 }
 export function roomScene(equipped,catalog,user,layout=null){
  const byId=id=>catalog.find(x=>x.id===id),stage=document.createElement('div');stage.className='mofu-room';stage.dataset.roomVersion='2';stage.setAttribute('role','img');stage.setAttribute('aria-label',user.name+'的小屋');
- const wall=byId(equipped.wall),floor=byId(equipped.floor);stage.style.setProperty('--room-wall',wall?.color||'#ecebe3');stage.style.setProperty('--room-floor',floor?.color||'#c1ad91');stage.dataset.wall=equipped.wall;stage.dataset.night=String(equipped.wall==='wall-night');stage.dataset.seat=String(Boolean(equipped.seat));
+ const wall=byId(equipped.wall),floor=byId(equipped.floor);stage.style.setProperty('--room-wall',wall?.color||'#ecebe3');stage.style.setProperty('--room-floor',floor?.color||'#c1ad91');stage.dataset.wall=equipped.wall;stage.dataset.floor=equipped.floor;stage.dataset.night=String(equipped.wall==='wall-night');stage.dataset.seat=String(Boolean(equipped.seat));
  stage.innerHTML=`<div class="room-wall"></div><div class="room-wainscot"></div><div class="room-light-patch"></div><div class="room-floor"><svg class="room-floorboards" viewBox="0 0 1000 300" preserveAspectRatio="none" aria-hidden="true"><g fill="none" stroke="#5e5142" stroke-opacity=".17" stroke-width="1"><path d="M0 74H1000M0 178H1000"/><path d="M110 0L-55 300M265 0L166 300M420 0L386 300M575 0L607 300M730 0L827 300M885 0L1048 300"/></g><g fill="#f4ebd8" opacity=".1"><path d="M110 0H265L166 300H-55Z"/><path d="M420 0H575L607 300H386Z"/><path d="M730 0H885L1048 300H827Z"/></g><g fill="none" stroke="#f7efdf" stroke-opacity=".2"><path d="M115 3L-50 300M425 3L391 300M735 3L832 300"/></g><g fill="none" stroke="#6b5c48" stroke-opacity=".07" stroke-width=".6"><path d="M178 15L100 280M310 14L262 286M479 15L474 284M659 17L713 277M792 13L895 288"/></g></svg></div><div class="room-window"><span class="window-sun"></span><span class="window-cloud"></span><i></i></div><div class="room-curtains"><i></i><i></i></div><div class="room-skirting"></div>`;
  const placement=layout||defaultLayout(equipped,catalog);
  const items=Object.keys(placement).map(byId).filter(item=>item&&ROOM_SLOTS.includes(item.slot));

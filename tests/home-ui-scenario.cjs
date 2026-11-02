@@ -14,7 +14,7 @@ app.disableHardwareAcceleration();
  const {HOME_STYLES,styleLayout}=await import(pathToFileURL(join(publicRoot,'home-styles.mjs')));
  const {defaultLayout}=await import(pathToFileURL(join(publicRoot,'room-layout.mjs')));
  const initial={catalog:CATALOG,owned:CATALOG.filter(x=>x.price===0).map(x=>x.id),equipped:{...DEFAULT_HOME},layout:{revision:1,nodes:defaultLayout(DEFAULT_HOME,CATALOG)},balance:20,today:{minutes:0,presence:0,social:0},rules:HOME_RULES,ledger:[]};
- const html=`<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">${['postoffice','postoffice-home','home-cozy','home-editor','studio-base','studio-home'].map(x=>'<link rel="stylesheet" href="/'+x+'.css">').join('')}<title>小屋交互验收</title></head><body><header class="post-header"><h1>绒角</h1><span id="connection">在线</span></header><div id="me-avatar"></div><main class="letter-pane"></main><script type="module">
+ const html=`<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">${['postoffice','postoffice-home','home-cozy','daylight-room-scenes','quiet-room-scenes','home-editor','studio-base','studio-home'].map(x=>'<link rel="stylesheet" href="/'+x+'.css">').join('')}<title>小屋交互验收</title></head><body><header class="post-header"><h1>绒角</h1><span id="connection">在线</span></header><div id="me-avatar"></div><main class="letter-pane"></main><script type="module">
  import {createHomeUI} from '/postoffice-home.mjs';import {defaultNode,ROOM_SLOTS} from '/room-layout.mjs';
  window.fixture={state:${JSON.stringify(initial)},calls:[],conflict:false,hold:false,fail:false,delayVisits:false,visits:{}};
  window.me={id:'fixture-rabbit',name:'耳朵',species:'rabbit',outfit:{}};
@@ -143,7 +143,20 @@ app.disableHardwareAcceleration();
  await click('#showroom-design-reset');assert.deepEqual(await run(showroomPositions),themeShowroom);await click('#try-design');
  await run(()=>{Object.defineProperty(navigator,'clipboard',{configurable:true,value:{writeText:async text=>{window.copied=text;}}});});
  await click('#share-room');assert.equal(new URL(await run(()=>window.copied)).hash,'#listening/rabbit');
- for(const room of HOME_STYLES.slice(1)){await run(hash=>{location.hash=hash;},room.id+'/'+room.species);await wait(name=>document.querySelector('#room-name').textContent===name&&document.querySelector('#showroom-scene').getAttribute('aria-busy')==='false',room.name);assert.equal(await run(()=>document.querySelector('#room-pet').value),room.species);}
+ for(const room of HOME_STYLES.slice(1)){
+  win.setContentSize(1240,900);await wait(()=>innerWidth===1240);
+  await run(hash=>{location.hash=hash;},room.id+'/'+room.species);await wait(name=>document.querySelector('#room-name').textContent===name&&document.querySelector('#showroom-scene').getAttribute('aria-busy')==='false',room.name);
+  assert.equal(await run(()=>document.querySelector('#room-pet').value),room.species);
+  assert.equal(await run(()=>document.querySelector('#room-price').textContent),Object.values(room.equipped).reduce((sum,id)=>sum+CATALOG.find(x=>x.id===id).price,0)+' 绒绒豆');
+  assert.equal(await run(()=>document.querySelector('#showroom-scene .mofu-room').dataset.floor),room.equipped.floor);
+  const scenePositions=await run(showroomPositions);
+  for(const [id,node]of Object.entries(styleLayout(room,CATALOG))){assert.equal(scenePositions[id][0],node.x+'%');assert.equal(scenePositions[id][1],node.y+'%');}
+  await click('#try-design');await wait(()=>!!document.querySelector('#showroom-scene .is-editable'));assert.deepEqual(await run(showroomPositions),scenePositions);
+  await run(()=>document.querySelector('#showroom-scene [data-node="pet"]').dispatchEvent(new KeyboardEvent('keydown',{key:'ArrowRight',bubbles:true})));
+  await click('#showroom-design-reset');assert.deepEqual(await run(showroomPositions),scenePositions);await click('#try-design');
+  for(const width of [1240,768,390]){win.setContentSize(width,width===768?1024:width===390?844:900);await wait(w=>innerWidth===w,width);assert.ok(await run(()=>document.documentElement.scrollWidth<=innerWidth+1),room.id+' overflow at '+width);await run(()=>window.scrollTo(0,0));await shot('scene-'+room.id+'-'+width);}
+ }
+ checks.push('Four distinct room compositions retain share identities, accurate catalog totals, actual floor selection and identical editor/reset positions at desktop, tablet and mobile widths');
  await run(()=>{location.hash='listening/rabbit';});await wait(()=>document.querySelector('#room-name').textContent==='下班听一张'&&document.querySelector('#showroom-scene').getAttribute('aria-busy')==='false');
  win.setContentSize(390,844);await wait(()=>innerWidth===390);assert.ok(await run(()=>document.documentElement.scrollWidth<=innerWidth+1));await run(()=>window.scrollTo(0,0));await shot('showroom-listening-phone');await run(()=>document.querySelector('[data-item-id="wear-knit-cap"]').scrollIntoView({block:'center'}));await click('[data-item-id="wear-knit-cap"]');await wait(()=>{const pet=document.querySelector('.room-pet.is-highlighted'),r=pet?.getBoundingClientRect();return r&&r.top>=0&&r.bottom<=innerHeight;});
  checks.push('Public default theme totals 368 beans; all three clothing cards locate real worn layers, editor/reset stay aligned, and all legacy share hashes remain valid');

@@ -35,12 +35,21 @@
 **[打开小屋灵感 →](https://mofu-corner-dengjihui1.netlify.app/showroom.html#listening/rabbit)** · 不用注册即可体验
 
 - **下班听一张**：百叶窗暮光、唱片柜、低座椅与深木色。
-- **奶油日光**：亚麻、浅橡木与奶油色软包。
-- **莓果公寓**：灰粉软包与胡桃木。
-- **森林书房**：雾绿织物、开放书架与窗边绿意。
-- **蓝调夜色**：蓝灰墙面与月相落地灯。
+- **周末慢慢醒**：浅橡木咖啡柜、曲木亚麻椅、和纸灯与晨光。
+- **花店休息日**：拱窗、花艺工作台、酒红沙发与奶油花砖。
+- **把下午读完**：庭院木窗、帆布吊带椅、胡桃木书架与植物手稿。
+- **城市晚一点**：城市横窗、钢架柜、玻璃棋盘茶几与钴蓝模块椅。
 
 ![下班听一张的实际房间](../../docs/screenshots/listening-room-live.jpg)
+
+**v0.10 重做另外四套房间**：新增 9 件家具，目录共 57 件。墙面与地面按实际选择分别生效，可跨系列混搭；四套原分享链接继续有效，已有收藏无需重新购买。网页刷新后即可看到新房间，本轮没有新增饰品 ID。
+
+<table>
+<tr><td align="center"><a href="https://mofu-corner-dengjihui1.netlify.app/showroom.html#breakfast/rabbit">周末慢慢醒</a></td><td align="center"><a href="https://mofu-corner-dengjihui1.netlify.app/showroom.html#berry/rabbit">花店休息日</a></td></tr>
+<tr><td><a href="https://mofu-corner-dengjihui1.netlify.app/showroom.html#breakfast/rabbit"><img src="../../docs/screenshots/room-breakfast-live.jpg" alt="周末慢慢醒的实际房间" width="520"></a></td><td><a href="https://mofu-corner-dengjihui1.netlify.app/showroom.html#berry/rabbit"><img src="../../docs/screenshots/room-berry-live.jpg" alt="花店休息日的实际房间" width="520"></a></td></tr>
+<tr><td align="center"><a href="https://mofu-corner-dengjihui1.netlify.app/showroom.html#forest/rabbit">把下午读完</a></td><td align="center"><a href="https://mofu-corner-dengjihui1.netlify.app/showroom.html#moon/rabbit">城市晚一点</a></td></tr>
+<tr><td><a href="https://mofu-corner-dengjihui1.netlify.app/showroom.html#forest/rabbit"><img src="../../docs/screenshots/room-forest-live.jpg" alt="把下午读完的实际房间" width="520"></a></td><td><a href="https://mofu-corner-dengjihui1.netlify.app/showroom.html#moon/rabbit"><img src="../../docs/screenshots/room-moon-live.jpg" alt="城市晚一点的实际房间" width="520"></a></td></tr>
+</table>
 
 **v0.9 新增「下班听一张」**：8 件独立原创房间素材，包括墙面、地板、平织毯、低座椅、唱片柜、杂志茶几、阅读灯和海报，合计 **296 豆**。配套穿搭如下，全套房间与穿搭共 **368 豆**；素色信纸免费。唱机是装饰，当前不播放音乐。
 
@@ -82,7 +91,7 @@
 
 ## 我的小屋与绒绒豆
 
-登录后点右上角 **「我的家」**。先试摆，再买下；拥有的装饰可以随时换回。目前提供 **48 款**内容，含 4 款免费基础装饰和 2 件免费饰品：墙纸、地板、地毯、座椅、花草、灯具、挂画、书架、茶几和聊天背景。
+登录后点右上角 **「我的家」**。先试摆，再买下；拥有的装饰可以随时换回。目前提供 **57 款**内容，含 4 款免费基础装饰和 2 件免费饰品：墙纸、地板、地毯、座椅、花草、灯具、挂画、书架、茶几和聊天背景。
 
 ![我的家与装饰商店](docs/home-shop.png)
 

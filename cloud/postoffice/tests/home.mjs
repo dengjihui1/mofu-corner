@@ -43,6 +43,19 @@ try{
   assert.deepEqual(themed.layout.nodes,saved.nodes,'wardrobe changes preserve saved theme placement');
  }
  assert.equal(themed.balance,52);assert.equal((await s.get('SELECT species FROM users WHERE id=?',listener.id)).species,'dog');
+ for(const room of HOME_STYLES.slice(1)){
+  const owner=await user('theme-'+room.id),draft=styleLayout(room,CATALOG),initial=await homeState(s,owner,now);
+  await rejects(()=>homeRoute(s,owner,'/home/layout','POST',{nodes:draft,revision:initial.layout.revision},now),403);
+  await s.run("INSERT INTO bean_ledger(user_id,event_key,reason,delta,day,created) VALUES(?,'test-funding','presence',1000,?,?)",owner.id,homeDay(now),now);
+  let state=await homeState(s,owner,now),cost=0;
+  for(const itemId of Object.values(room.equipped)){
+   const item=CATALOG.find(x=>x.id===itemId);cost+=item.price;
+   state=await homeRoute(s,owner,item.price?'/home/buy':'/home/equip','POST',{itemId},now);
+  }
+  assert.equal(state.balance,1020-cost);
+  state=await homeRoute(s,owner,'/home/layout','POST',{nodes:draft,revision:state.layout.revision},now);
+  assert.deepEqual((await homeState(s,owner,now)).layout.nodes,draft,'all redesigned compositions persist with owned furnishings');
+ }
  const a=await user('alice'),b=await user('bob');
  await Promise.all(Array.from({length:5},()=>homeState(s,a,now)));assert.equal((await homeState(s,a,now)).balance,20,'welcome is once per account');
  await rejects(()=>homeRoute(s,a,'/home/equip','POST',{itemId:'light-moon'},now),403);

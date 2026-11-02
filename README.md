@@ -215,7 +215,21 @@ node setup.mjs --postoffice https://mofu-corner-dengjihui1.netlify.app
 
 <img src="docs/screenshots/listening-room-live.jpg" alt="下班听一张：百叶窗暮光、唱片柜、低座椅和穿着新饰品的毛绒兔" width="1100">
 
-**[免登录体验五间小屋](https://mofu-corner-dengjihui1.netlify.app/showroom.html#listening/rabbit)**：下班听一张、奶油日光、莓果公寓、森林书房、蓝调夜色。装饰和饰品共 **48 款**。可以切换示例生肖、试摆、留张照片和分享搭配；登录后「灵感」使用自己的账号伙伴，生肖保持不变。
+**[免登录体验五间小屋](https://mofu-corner-dengjihui1.netlify.app/showroom.html#listening/rabbit)**：下班听一张、周末慢慢醒、花店休息日、把下午读完、城市晚一点。装饰和饰品共 **57 款**。可以切换示例生肖、试摆、留张照片和分享搭配；登录后「灵感」使用自己的账号伙伴，生肖保持不变。
+
+**v0.10 · 四种新的日常**：咖啡角、花店工作室、庭院书房和城市夜景，各有独立窗型、家具结构、材质与摆放。新增咖啡柜、花艺台、阅读边几、钢架柜等 9 件家具；原有物品的价格、所有权和已保存坐标继续有效。
+
+<table>
+<tr><td align="center"><a href="https://mofu-corner-dengjihui1.netlify.app/showroom.html#breakfast/rabbit">周末慢慢醒</a></td><td align="center"><a href="https://mofu-corner-dengjihui1.netlify.app/showroom.html#berry/rabbit">花店休息日</a></td></tr>
+<tr><td><a href="https://mofu-corner-dengjihui1.netlify.app/showroom.html#breakfast/rabbit"><img src="docs/screenshots/room-breakfast-live.jpg" alt="周末慢慢醒的实际房间" width="520"></a></td><td><a href="https://mofu-corner-dengjihui1.netlify.app/showroom.html#berry/rabbit"><img src="docs/screenshots/room-berry-live.jpg" alt="花店休息日的实际房间" width="520"></a></td></tr>
+<tr><td align="center"><a href="https://mofu-corner-dengjihui1.netlify.app/showroom.html#forest/rabbit">把下午读完</a></td><td align="center"><a href="https://mofu-corner-dengjihui1.netlify.app/showroom.html#moon/rabbit">城市晚一点</a></td></tr>
+<tr><td><a href="https://mofu-corner-dengjihui1.netlify.app/showroom.html#forest/rabbit"><img src="docs/screenshots/room-forest-live.jpg" alt="把下午读完的实际房间" width="520"></a></td><td><a href="https://mofu-corner-dengjihui1.netlify.app/showroom.html#moon/rabbit"><img src="docs/screenshots/room-moon-live.jpg" alt="城市晚一点的实际房间" width="520"></a></td></tr>
+</table>
+
+- **周末慢慢醒**：浅橡木咖啡柜、曲木亚麻椅、和纸灯与晨光。
+- **花店休息日**：拱窗、花艺工作台、酒红沙发与奶油花砖。
+- **把下午读完**：庭院木窗、帆布吊带椅、胡桃木书架与植物手稿。
+- **城市晚一点**：城市横窗、钢架柜、玻璃棋盘茶几与钴蓝模块椅。
 
 **v0.9 · 下班听一张** 新增 8 件独立原创房间素材：百叶窗墙面、深胡桃木地板、平织毯、低座椅、唱片柜、杂志茶几、阅读灯与蓝调海报；配套炭灰针织帽 **28 豆**、细纹方巾 **18 豆**、原色帆布包 **26 豆**。全套合计 **368 豆**，其中房间物品 296 豆、穿搭 72 豆。唱机是房间装饰，当前不播放音乐。
 
@@ -227,7 +241,7 @@ node setup.mjs --postoffice https://mofu-corner-dengjihui1.netlify.app
 
 [打开小屋展厅](https://mofu-corner-dengjihui1.netlify.app/showroom.html) · [登录我的家](https://mofu-corner-dengjihui1.netlify.app/)
 
-<img src="docs/screenshots/room-postcard.png" alt="从真实小屋导出的房间照片：雾粉墙面、软包椅与毛绒兔" width="850">
+<img src="docs/screenshots/room-postcard.png" alt="从真实花店房间导出的照片：拱窗、酒红沙发与毛绒兔" width="850">
 
 上图由“留张照片”直接导出，属于搭配预览。自己的房间以已拥有并保存的装饰为准。
 
@@ -394,7 +408,7 @@ npm run package:source
 ```
 
 - `docs:screenshots` 用临时配置启动隐藏 Electron 窗口，走真实 IPC 与界面操作，生成本文的小窝截图、生肖阵容和动作关键帧；不会修改你的 `.local/`。
-- `package:source` 输出 `dist/mofu-corner-0.9.0-source.zip` 与 SHA-256，不包含依赖、本机数据或历史设计稿。
+- `package:source` 输出 `dist/mofu-corner-0.10.0-source.zip` 与 SHA-256，不包含依赖、本机数据或历史设计稿。
 - 三平台检查与源码包可在 [GitHub Actions](https://github.com/dengjihui1/mofu-corner/actions) 查看。CI 的合成窗口定位不等同于真实飞书客户端人工验收。
 
 | 目录 | 内容 |
